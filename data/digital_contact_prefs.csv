@@ -1,0 +1,61 @@
+digital_user_id,first_name,last_name,email,phone,preferred_channel,sms_consent,email_consent,voice_ai_consent,quiet_hours_start,quiet_hours_end,last_login
+DB-542417,Dana,Whitfield,dana.whitfield0@example.com,(408) 555-0100,SMS,true,true,true,21:00,08:00,2026-10-12
+DB-571029,Marcus,Okafor,marcus.okafor1@example.com,4085550101,SMS,true,true,false,21:00,08:00,2026-07-12
+DB-498382,Priya,Raman,PRIYA.RAMAN2@EXAMPLE.COM,408-555-0102,SMS,true,true,true,21:00,08:00,2026-07-07
+DB-407419,Luis,Delgado,LUIS.DELGADO3@EXAMPLE.COM,4085550103,SMS,true,true,false,21:00,08:00,2026-08-05
+DB-996865,Grace,Huang,grace.huang4@example.com,4085550104,SMS,true,true,true,21:00,08:00,2026-10-11
+DB-816751,Tom,Brennan,tom.brennan5@example.com,408-555-0105,SMS,true,true,false,21:00,08:00,2026-08-07
+DB-440035,Aisha,Siddiqui,aisha.siddiqui6@example.com,(408) 555-0106,SMS,true,true,false,21:00,08:00,2026-07-16
+DB-429963,Ken,Tanaka,KEN.TANAKA7@EXAMPLE.COM,408-555-0107,SMS,true,true,true,21:00,08:00,2026-08-21
+DB-149405,Felix,Fontaine,FELIX.FONTAINE8@EXAMPLE.COM,(408) 555-0108,EMAIL,true,true,false,21:00,08:00,2026-10-04
+DB-555884,Nora,Kowalski,nora.kowalski9@example.com,4085550109,EMAIL,true,true,true,21:00,08:00,2026-10-23
+DB-480612,Hannah,Castillo,hannah.castillo10@example.com,4085550110,EMAIL,true,true,false,21:00,08:00,2026-07-09
+DB-543692,Ivan,Tanaka,IVAN.TANAKA11@EXAMPLE.COM,408-555-0111,PHONE,false,true,false,21:00,08:00,2026-06-27
+DB-842225,Jake,Siddiqui,jacob.siddiqui12@example.com,4085550112,SMS,true,true,false,21:00,08:00,2026-09-24
+DB-170674,Jake,Siddiqui,jacobsiddiqui.old@example.com,4085550112,EMAIL,false,true,false,21:00,08:00,2024-06-12
+DB-589710,Priya,Lindqvist,priya.lindqvist13@example.com,(408) 555-0113,EMAIL,false,true,false,21:00,08:00,2026-10-17
+DB-783823,Aisha,Okafor,aisha.okafor14@example.com,(408) 555-0114,PHONE,true,true,false,21:00,08:00,2026-07-08
+DB-610311,Dana,Raman,dana.raman15@example.com,408-555-0115,PHONE,false,true,true,21:00,08:00,2026-09-16
+DB-523389,Ben,Okafor,ben.okafor16@example.com,(408) 555-0116,SMS,true,true,true,21:00,08:00,2026-07-02
+DB-176066,Derek,Tanaka,derek.tanaka17@example.com,(408) 555-0117,EMAIL,false,true,true,21:00,08:00,2026-08-05
+DB-956795,Derek,Delgado,derek.delgado18@example.com,4085550118,PHONE,true,true,false,21:00,08:00,2026-06-26
+DB-987204,Aisha,Huang,aisha.huang19@example.com,4085550119,EMAIL,false,true,true,21:00,08:00,2026-08-03
+DB-885884,Sam,Yamada,sam.yamada21@example.com,408-555-0121,EMAIL,false,true,true,21:00,08:00,2026-06-26
+DB-593554,Carlos,Brennan,CARLOS.BRENNAN22@EXAMPLE.COM,(408) 555-0122,SMS,true,true,true,21:00,08:00,2026-07-11
+DB-220944,Derek,Mehta,derek.mehta23@example.com,4085550123,SMS,true,true,false,21:00,08:00,2026-09-20
+DB-664607,Raj,Osei,raj.osei24@example.com,408-555-0124,PHONE,false,true,false,21:00,08:00,2026-06-25
+DB-301158,Olivia,Mehta,olivia.mehta25@example.com,408-555-0125,SMS,true,true,false,21:00,08:00,2026-06-25
+DB-934692,Tara,Brennan,tara.brennan26@example.com,408-555-0126,PHONE,false,true,false,21:00,08:00,2026-07-31
+DB-830180,Tom,Pereira,tom.pereira27@example.com,(408) 555-0127,PHONE,true,true,false,21:00,08:00,2026-09-02
+DB-355836,Tom,Pereira,tompereira.old@example.com,(408) 555-0127,EMAIL,false,true,false,21:00,08:00,2025-07-05
+DB-724377,Dana,Delgado,dana.delgado28@example.com,408-555-0128,PHONE,false,true,false,21:00,08:00,2026-07-19
+DB-399607,Isla,Morrow,isla.morrow29@example.com,4085550129,EMAIL,true,true,true,21:00,08:00,2026-09-11
+DB-998348,Leah,Yamada,leah.yamada30@example.com,408-555-0130,SMS,true,true,false,21:00,08:00,2026-08-11
+DB-936912,Tara,Ibarra,TARA.IBARRA31@EXAMPLE.COM,408-555-0131,EMAIL,false,true,false,21:00,08:00,2026-10-02
+DB-972335,Derek,Huang,derek.huang32@example.com,(408) 555-0132,EMAIL,true,true,false,21:00,08:00,2026-07-09
+DB-427110,Sam,Tanaka,SAM.TANAKA34@EXAMPLE.COM,(408) 555-0134,SMS,true,true,false,21:00,08:00,2026-06-29
+DB-113266,Tara,Garrison,tara.garrison35@example.com,4085550135,PHONE,false,true,false,21:00,08:00,2026-07-10
+DB-965845,Thomas,Delgado,thomas.delgado36@example.com,4085550136,EMAIL,false,true,false,21:00,08:00,2026-09-19
+DB-725113,Leah,Tanaka,leah.tanaka37@example.com,408-555-0137,EMAIL,true,true,false,21:00,08:00,2026-09-18
+DB-524045,Victor,Whitfield,VICTOR.WHITFIELD38@EXAMPLE.COM,408-555-0138,SMS,true,true,false,21:00,08:00,2026-09-14
+DB-823688,Liv,Mehta,OLIVIA.MEHTA39@EXAMPLE.COM,4085550139,PHONE,false,true,true,21:00,08:00,2026-09-26
+DB-232413,Sam,Novak,SAMUEL.NOVAK40@EXAMPLE.COM,408-555-0140,EMAIL,false,true,false,21:00,08:00,2026-07-19
+DB-259097,Thomas,Delgado,thomas.delgado41@example.com,408-555-0141,SMS,true,true,true,21:00,08:00,2026-08-12
+DB-418594,Thomas,Delgado,thomasdelgado.old@example.com,408-555-0141,EMAIL,false,true,true,21:00,08:00,2025-08-06
+DB-876039,Carlos,Delgado,carlos.delgado42@example.com,4085550142,PHONE,true,true,true,21:00,08:00,2026-07-18
+DB-377405,Ben,Siddiqui,ben.siddiqui43@example.com,408-555-0143,SMS,true,true,false,21:00,08:00,2026-08-04
+DB-385470,Olivia,Siddiqui,olivia.siddiqui44@example.com,408-555-0144,EMAIL,false,true,false,21:00,08:00,2026-08-21
+DB-900177,Isla,Raman,ISLA.RAMAN45@EXAMPLE.COM,4085550145,EMAIL,false,true,false,21:00,08:00,2026-08-24
+DB-519904,Benjamin,Fontaine,benjamin.fontaine46@example.com,(408) 555-0146,EMAIL,false,true,false,21:00,08:00,2026-08-14
+DB-844261,Ben,Mehta,benjamin.mehta48@example.com,408-555-0148,PHONE,false,true,true,21:00,08:00,2026-08-14
+DB-595158,Dana,Yamada,dana.yamada49@example.com,4085550149,EMAIL,false,true,true,21:00,08:00,2026-08-14
+DB-568238,Sam,Garrison,sam.garrison50@example.com,4085550150,SMS,true,true,false,21:00,08:00,2026-09-09
+DB-930884,Omar,Yamada,omar.yamada51@example.com,408-555-0151,EMAIL,false,true,false,21:00,08:00,2026-10-04
+DB-781403,Thomas,Okafor,thomas.okafor52@example.com,408-555-0152,PHONE,false,true,true,21:00,08:00,2026-09-11
+DB-827712,Jacob,Garrison,JACOB.GARRISON53@EXAMPLE.COM,4085550153,SMS,true,true,true,21:00,08:00,2026-10-20
+DB-583550,Priya,Lindqvist,priya.lindqvist54@example.com,408-555-0154,PHONE,true,true,false,21:00,08:00,2026-08-26
+DB-211834,Hannah,Whitfield,hannah.whitfield55@example.com,408-555-0155,EMAIL,false,true,true,21:00,08:00,2026-08-11
+DB-341296,Ruth,Osei,ruth.osei56@example.com,(408) 555-0156,EMAIL,false,true,false,21:00,08:00,2026-09-08
+DB-237795,Mei,Siddiqui,mei.siddiqui57@example.com,(408) 555-0157,PHONE,true,true,true,21:00,08:00,2026-09-16
+DB-591081,Leah,Kowalski,leah.kowalski58@example.com,408-555-0158,SMS,true,true,false,21:00,08:00,2026-10-05
+DB-594379,Mei,Garrison,MEI.GARRISON59@EXAMPLE.COM,4085550159,SMS,true,true,true,21:00,08:00,2026-07-02

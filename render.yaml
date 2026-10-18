@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: collections-policy-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: BUSINESS_DATE
+        value: "2026-10-23"
+      - key: API_KEY
+        generateValue: true
+      - key: ADMIN_API_KEY
+        generateValue: true

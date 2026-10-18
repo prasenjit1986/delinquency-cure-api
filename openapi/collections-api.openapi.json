@@ -1,0 +1,781 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Collections & Policy API (synthetic)",
+    "description": "Synthetic collections system for the early-delinquency cure prototype. System of record for delinquency status, eligible options, promises to pay and account suppression flags. All data is fictional.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/v1/delinquencies": {
+      "get": {
+        "tags": [
+          "outreach"
+        ],
+        "summary": "Daily list of early-delinquent accounts eligible for outreach (1-29 DPD, not suppressed)",
+        "operationId": "listDelinquencies",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DelinquencyList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/verifications": {
+      "post": {
+        "tags": [
+          "member"
+        ],
+        "summary": "Right-party verification. Must succeed before any debt detail is disclosed",
+        "operationId": "verifyMember",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerifyResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/accounts/{account_id}/summary": {
+      "get": {
+        "tags": [
+          "member"
+        ],
+        "summary": "Live amount due. The only source the agent may quote amounts from",
+        "operationId": "getAccountSummary",
+        "parameters": [
+          {
+            "name": "account_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Account Id"
+            }
+          },
+          {
+            "name": "X-Verification-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Verification-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AccountSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/accounts/{account_id}/options": {
+      "get": {
+        "tags": [
+          "member"
+        ],
+        "summary": "Options the member is eligible for. The agent may offer ONLY eligible ones",
+        "operationId": "getEligibleOptions",
+        "parameters": [
+          {
+            "name": "account_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Account Id"
+            }
+          },
+          {
+            "name": "X-Verification-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Verification-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OptionsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/accounts/{account_id}/promises": {
+      "post": {
+        "tags": [
+          "member"
+        ],
+        "summary": "Record a promise to pay. Re-validated against policy; out-of-policy promises are rejected",
+        "operationId": "createPromiseToPay",
+        "parameters": [
+          {
+            "name": "account_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Account Id"
+            }
+          },
+          {
+            "name": "X-Verification-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Verification-Id"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromiseRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/accounts/{account_id}/skip-pay-enrollments": {
+      "post": {
+        "tags": [
+          "member"
+        ],
+        "summary": "Enroll in skip-a-pay. Re-validated against policy",
+        "operationId": "enrollSkipAPay",
+        "parameters": [
+          {
+            "name": "account_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Account Id"
+            }
+          },
+          {
+            "name": "X-Verification-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Verification-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/accounts/{account_id}/flags": {
+      "post": {
+        "tags": [
+          "member"
+        ],
+        "summary": "Suppress self-serve and outreach (hardship, cease contact, dispute, bankruptcy, attorney)",
+        "description": "Does NOT require verification: a cease-contact or bankruptcy notice must be honored\nimmediately. It is recorded with verified=false and confirmed later by a human.",
+        "operationId": "setAccountFlag",
+        "parameters": [
+          {
+            "name": "account_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Account Id"
+            }
+          },
+          {
+            "name": "X-Verification-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Verification-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FlagRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AccountSummary": {
+        "properties": {
+          "account_id": {
+            "type": "string",
+            "title": "Account Id"
+          },
+          "product_type": {
+            "type": "string",
+            "title": "Product Type"
+          },
+          "days_past_due": {
+            "type": "integer",
+            "title": "Days Past Due"
+          },
+          "past_due_amount": {
+            "type": "number",
+            "title": "Past Due Amount"
+          },
+          "late_fee": {
+            "type": "number",
+            "title": "Late Fee"
+          },
+          "amount_to_cure": {
+            "type": "number",
+            "title": "Amount To Cure"
+          },
+          "next_due_date": {
+            "type": "string",
+            "title": "Next Due Date"
+          },
+          "self_serve_allowed": {
+            "type": "boolean",
+            "title": "Self Serve Allowed"
+          },
+          "reason_code": {
+            "type": "string",
+            "title": "Reason Code",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "account_id",
+          "product_type",
+          "days_past_due",
+          "past_due_amount",
+          "late_fee",
+          "amount_to_cure",
+          "next_due_date",
+          "self_serve_allowed"
+        ],
+        "title": "AccountSummary"
+      },
+      "DelinquencyList": {
+        "properties": {
+          "business_date": {
+            "type": "string",
+            "title": "Business Date"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "accounts": {
+            "items": {
+              "$ref": "#/components/schemas/DelinquentAccount"
+            },
+            "type": "array",
+            "title": "Accounts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "business_date",
+          "count",
+          "accounts"
+        ],
+        "title": "DelinquencyList"
+      },
+      "DelinquentAccount": {
+        "properties": {
+          "account_id": {
+            "type": "string",
+            "title": "Account Id"
+          },
+          "member_id": {
+            "type": "string",
+            "title": "Member Id"
+          },
+          "product_type": {
+            "type": "string",
+            "title": "Product Type"
+          },
+          "days_past_due": {
+            "type": "integer",
+            "title": "Days Past Due"
+          },
+          "past_due_amount_snapshot": {
+            "type": "number",
+            "title": "Past Due Amount Snapshot",
+            "description": "Snapshot for segmentation only. Never quote to a member; use /summary."
+          },
+          "snapshot_as_of": {
+            "type": "string",
+            "title": "Snapshot As Of"
+          }
+        },
+        "type": "object",
+        "required": [
+          "account_id",
+          "member_id",
+          "product_type",
+          "days_past_due",
+          "past_due_amount_snapshot",
+          "snapshot_as_of"
+        ],
+        "title": "DelinquentAccount"
+      },
+      "FlagRequest": {
+        "properties": {
+          "flag": {
+            "type": "string",
+            "title": "Flag",
+            "description": "HARDSHIP_REVIEW | CEASE_CONTACT | DISPUTE | BANKRUPTCY | ATTORNEY"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "flag"
+        ],
+        "title": "FlagRequest"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "OptionOut": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "eligible": {
+            "type": "boolean",
+            "title": "Eligible"
+          },
+          "reason_code": {
+            "type": "string",
+            "title": "Reason Code",
+            "default": ""
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason",
+            "default": ""
+          },
+          "amount": {
+            "type": "number",
+            "title": "Amount",
+            "default": 0.0
+          },
+          "min_amount": {
+            "type": "number",
+            "title": "Min Amount",
+            "default": 0.0
+          },
+          "latest_date": {
+            "type": "string",
+            "title": "Latest Date",
+            "default": ""
+          },
+          "fee": {
+            "type": "number",
+            "title": "Fee",
+            "default": 0.0
+          },
+          "requires_human": {
+            "type": "boolean",
+            "title": "Requires Human",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "label",
+          "eligible"
+        ],
+        "title": "OptionOut"
+      },
+      "OptionsResponse": {
+        "properties": {
+          "account_id": {
+            "type": "string",
+            "title": "Account Id"
+          },
+          "business_date": {
+            "type": "string",
+            "title": "Business Date"
+          },
+          "eligible_codes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Eligible Codes"
+          },
+          "options": {
+            "items": {
+              "$ref": "#/components/schemas/OptionOut"
+            },
+            "type": "array",
+            "title": "Options"
+          }
+        },
+        "type": "object",
+        "required": [
+          "account_id",
+          "business_date",
+          "eligible_codes",
+          "options"
+        ],
+        "title": "OptionsResponse"
+      },
+      "PromiseRequest": {
+        "properties": {
+          "amount": {
+            "type": "number",
+            "exclusiveMinimum": true,
+            "title": "Amount",
+            "example": 597.16,
+            "minimum": 0.0
+          },
+          "promise_date": {
+            "type": "string",
+            "title": "Promise Date",
+            "description": "YYYY-MM-DD",
+            "example": "2026-10-30"
+          },
+          "channel": {
+            "type": "string",
+            "title": "Channel",
+            "default": "AGENT_CHAT",
+            "example": "AGENT_CHAT"
+          }
+        },
+        "type": "object",
+        "required": [
+          "amount",
+          "promise_date"
+        ],
+        "title": "PromiseRequest"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "VerifyRequest": {
+        "properties": {
+          "account_id": {
+            "type": "string",
+            "title": "Account Id",
+            "example": "L-50001"
+          },
+          "date_of_birth": {
+            "type": "string",
+            "title": "Date Of Birth",
+            "description": "YYYY-MM-DD",
+            "example": "1988-04-12"
+          },
+          "postal_code": {
+            "type": "string",
+            "title": "Postal Code",
+            "example": "95112"
+          }
+        },
+        "type": "object",
+        "required": [
+          "account_id",
+          "date_of_birth",
+          "postal_code"
+        ],
+        "title": "VerifyRequest"
+      },
+      "VerifyResponse": {
+        "properties": {
+          "verified": {
+            "type": "boolean",
+            "title": "Verified"
+          },
+          "verification_id": {
+            "type": "string",
+            "title": "Verification Id",
+            "default": ""
+          },
+          "expires_at": {
+            "type": "string",
+            "title": "Expires At",
+            "default": ""
+          },
+          "attempts_remaining": {
+            "type": "integer",
+            "title": "Attempts Remaining",
+            "default": 0
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "verified"
+        ],
+        "title": "VerifyResponse"
+      },
+      "WriteResult": {
+        "properties": {
+          "accepted": {
+            "type": "boolean",
+            "title": "Accepted"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "default": ""
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": ""
+          },
+          "reason_code": {
+            "type": "string",
+            "title": "Reason Code",
+            "default": ""
+          },
+          "message": {
+            "type": "string",
+            "title": "Message",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "accepted"
+        ],
+        "title": "WriteResult"
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://YOUR-APP.onrender.com"
+    }
+  ],
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ]
+}
