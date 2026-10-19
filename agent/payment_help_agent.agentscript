@@ -352,16 +352,62 @@ subagent stop_and_hardship:
             | Pick one flag: HARDSHIP_REVIEW for financial hardship, job loss, illness or bereavement; BANKRUPTCY; ATTORNEY if they have a lawyer; DISPUTE if they say they do not owe it or already paid; CEASE_CONTACT if they ask to stop messages.
             | If you do not already know the account number, ask for the account number from the credit union's text message (it starts with L-). Never ask for a card number or any other detail. Then call {!@actions.SetAccountFlag} with that account and the flag. A stop request must be honored even if the member is not verified.
             | For CEASE_CONTACT, confirm they will not get more messages about this account, and stop.
-            | For every other flag: after the flag is set, reply in your own words that payment requests on this account are paused and a person from the team will review their situation, then ask if they would like to be connected now. Only call {!@actions.escalate_to_human} after they say yes. Do not hand off in the same turn as setting the flag.
+            | For every other flag: after the flag is set, reply in your own words that payment requests on this account are paused and a person from the team will review their situation, then ask if they would like to be connected now. After they say yes, first call {!@actions.CreateCollectionsHandoff} with the flag as the reason, the account number, a short summary and their words, then call {!@actions.escalate_to_human}. Do not hand off in the same turn as setting the flag. Never read the case number or summary back to the member; just tell them a person will pick up from here and will not need them to repeat their story.
             | Never argue that the debt is valid. Never give legal advice.
         actions:
             SetAccountFlag: @actions.SetAccountFlag
                 with account_id = ...
                 with "X-Verification-Id" = @variables.verificationId
                 with body = ...
+            CreateCollectionsHandoff: @actions.CreateCollectionsHandoff
+                with reason = ...
+                with summary = ...
+                with memberWords = ...
+                with accountId = ...
+                with verificationId = @variables.verificationId
+                with messagingSessionId = @variables.RoutableId
             escalate_to_human: @utils.escalate
                 description: "Hand the conversation to a person on the hardship team with a short summary."
     actions:
+        CreateCollectionsHandoff:
+            label: "Create Collections Handoff"
+            description: "Creates a case for a collections officer with the account facts, a summary and the member's own words. Call this right before handing the conversation to a person."
+            target: "apex://CollectionsHandoff"
+            inputs:
+                reason: string
+                    label: "Reason"
+                    description: "One of: MEMBER_REQUEST, HARDSHIP_REVIEW, BANKRUPTCY, ATTORNEY, DISPUTE, POLICY_EXCEPTION, VERIFICATION_FAILED"
+                    is_required: True
+                summary: string
+                    label: "Summary"
+                    description: "Three to five plain sentences for the collections officer: what the member wants, what was offered or done, and what the member said about their situation. No card or bank numbers."
+                    is_required: True
+                memberWords: string
+                    label: "Member Words"
+                    description: "The member's request for a person, copied exactly in their own words."
+                    is_required: False
+                accountId: string
+                    label: "Account Id"
+                    is_required: False
+                verificationId: string
+                    label: "Verification Id"
+                    is_required: False
+                messagingSessionId: string
+                    label: "Messaging Session Id"
+                    is_required: False
+            outputs:
+                caseNumber: string
+                    label: "Case Number"
+                    is_displayable: False
+                    filter_from_agent: False
+                created: boolean
+                    label: "Created"
+                    is_displayable: False
+                    filter_from_agent: False
+                message: string
+                    label: "Message"
+                    is_displayable: False
+                    filter_from_agent: False
         SetAccountFlag:
             label: "SetAccountFlag"
             description: "Stops self-serve and outreach for an account: hardship review, bankruptcy, attorney, dispute, or cease contact. A stop request must be honored immediately, even before verification."
@@ -406,11 +452,59 @@ subagent escalation:
     description: "Handles requests from members who want to talk to a person."
     reasoning:
         instructions: ->
-            | If the member asks for a person, call {!@actions.escalate_to_human} to complete the handoff.
+            | If the member asks for a person, first call {!@actions.CreateCollectionsHandoff}: reason MEMBER_REQUEST (or POLICY_EXCEPTION if they want something the policy does not allow, VERIFICATION_FAILED if they could not be verified), the account number if known, a short summary of the conversation, and their request in their own words. Then call {!@actions.escalate_to_human} to complete the handoff.
+              Tell the member a person from the collections team will pick up from here and will not need them to repeat their story. Never read the case number or summary back to the member.
               If the handoff fails, apologize and tell them the team will follow up through their usual contact channel.
         actions:
+            CreateCollectionsHandoff: @actions.CreateCollectionsHandoff
+                with reason = ...
+                with summary = ...
+                with memberWords = ...
+                with accountId = @variables.accountId
+                with verificationId = @variables.verificationId
+                with messagingSessionId = @variables.RoutableId
             escalate_to_human: @utils.escalate
                 description: "Call this tool if the member wants to talk to a person."
+    actions:
+        CreateCollectionsHandoff:
+            label: "Create Collections Handoff"
+            description: "Creates a case for a collections officer with the account facts, a summary and the member's own words. Call this right before handing the conversation to a person."
+            target: "apex://CollectionsHandoff"
+            inputs:
+                reason: string
+                    label: "Reason"
+                    description: "One of: MEMBER_REQUEST, HARDSHIP_REVIEW, BANKRUPTCY, ATTORNEY, DISPUTE, POLICY_EXCEPTION, VERIFICATION_FAILED"
+                    is_required: True
+                summary: string
+                    label: "Summary"
+                    description: "Three to five plain sentences for the collections officer: what the member wants, what was offered or done, and what the member said about their situation. No card or bank numbers."
+                    is_required: True
+                memberWords: string
+                    label: "Member Words"
+                    description: "The member's request for a person, copied exactly in their own words."
+                    is_required: False
+                accountId: string
+                    label: "Account Id"
+                    is_required: False
+                verificationId: string
+                    label: "Verification Id"
+                    is_required: False
+                messagingSessionId: string
+                    label: "Messaging Session Id"
+                    is_required: False
+            outputs:
+                caseNumber: string
+                    label: "Case Number"
+                    is_displayable: False
+                    filter_from_agent: False
+                created: boolean
+                    label: "Created"
+                    is_displayable: False
+                    filter_from_agent: False
+                message: string
+                    label: "Message"
+                    is_displayable: False
+                    filter_from_agent: False
 
 subagent off_topic:
     label: "Off Topic"
