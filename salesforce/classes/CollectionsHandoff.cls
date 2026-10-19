@@ -64,7 +64,7 @@ public with sharing class CollectionsHandoff {
 
         Case c = new Case(
             Subject = 'Collections handoff: ' + reason + (String.isNotBlank(r.accountId) ? ' - ' + r.accountId : ''),
-            Origin = 'Chat',
+            Origin = 'Web',
             Status = 'New',
             Priority = urgent ? 'High' : 'Medium',
             Description = buildDescription(r, reason, verified, summary, options, factsError)
@@ -104,8 +104,8 @@ public with sharing class CollectionsHandoff {
         if (s != null) {
             lines.add('Product: ' + s.get('product_type'));
             lines.add('Days past due: ' + s.get('days_past_due'));
-            lines.add('Past due: $' + s.get('past_due_amount') + ' + late fee $' + s.get('late_fee')
-                      + ' = $' + s.get('amount_to_cure') + ' to bring current');
+            lines.add('Past due: ' + money(s.get('past_due_amount')) + ' + late fee ' + money(s.get('late_fee'))
+                      + ' = ' + money(s.get('amount_to_cure')) + ' to bring current');
             lines.add('Next due date: ' + s.get('next_due_date'));
             lines.add('Self-serve allowed: ' + s.get('self_serve_allowed')
                       + (String.isBlank((String) s.get('reason_code')) ? '' : ' (' + s.get('reason_code') + ')'));
@@ -127,6 +127,10 @@ public with sharing class CollectionsHandoff {
         lines.add('Transcript: ' + (String.isBlank(r.messagingSessionId)
             ? 'not linked (test conversation)' : 'Messaging Session ' + r.messagingSessionId));
         return String.join(lines, '\n').left(32000);
+    }
+
+    static String money(Object v) {
+        return v == null ? 'n/a' : '$' + Decimal.valueOf(String.valueOf(v)).setScale(2).toPlainString();
     }
 
     static Map<String, Object> getJson(String path, String verificationId) {

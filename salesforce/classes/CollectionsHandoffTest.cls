@@ -37,7 +37,7 @@ private class CollectionsHandoffTest {
         Case c = [SELECT Subject, Description, Priority, Origin FROM Case LIMIT 1];
         System.assert(res.created);
         System.assert(c.Subject.contains('MEMBER_REQUEST - L-50001'));
-        System.assert(c.Description.contains('$597.16 to bring current'));
+        System.assert(c.Description.contains('$572.16 + late fee $25.00 = $597.16 to bring current'));
         System.assert(c.Description.contains('PAY_NOW, PROMISE_TO_PAY'));
         System.assert(c.Description.contains('"Can I talk to a real person?"'));
         System.assertEquals('Medium', c.Priority);

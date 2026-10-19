@@ -164,7 +164,19 @@ what I accepted, rejected or changed, how I verified it, and where it was wrong.
 4. **Stock empathy.** "Thank you for sharing how you're feeling" when the member had shared nothing. Fix: acknowledge feelings only when expressed.
 
 **Open nit:** Vera volunteers "you are not eligible for…" options the member didn't ask about. Transparent, but slightly negative. Left as is.
-**Known limitation:** escalation in Preview has no live queue (no Omni-Channel routing configured), so "connect now" has nowhere to land yet.
+**Known limitation:** escalation in Preview has no live queue (no Omni-Channel routing configured), so "connect now" has nowhere to land yet. (Addressed in entry 16 with a case handoff.)
+
+### 16. Collections Officer handoff (case-based)
+- **Used for:** scoping the handoff, writing the Apex action and tests, wiring it into Vera, running two Preview tests.
+- **Output:** queue `Collections Officers` (Case), Apex `CollectionsHandoff` (invocable, callout to the API) + `CollectionsHandoffTest` (3/3 pass), permission set access for Vera's user, `CreateCollectionsHandoff` action in the hardship and escalation paths.
+- **My judgment:** chose a case handoff over a live Messaging/Omni-Channel transfer for the prototype. Same answer to "does the officer start from zero?" at a third of the effort and risk; the live transfer is shown on the architecture as the production path. Account facts on the case come from the API, never from the AI; Vera only supplies reason, summary and the member's words. If the API fails, the case is still created.
+- **Verification:** Apex tests (verified, unverified, API down). Preview: Dana (verified, asks for a person) -> case 00001026, Medium, facts $572.16 + $25.00 = $597.16 from the API. Ken (hardship, unverified) -> case 00001028, HARDSHIP_REVIEW, High, L-50008, his own words. Evidence 07-09.
+- **Where AI was wrong, incomplete or misleading:**
+  1. First Ken run: the "yes" was routed to the general escalation path, which recorded MEMBER_REQUEST (Medium), no account, and quoted "Yes please". Fix: choose reason, account and quote from the whole conversation. Re-tested: correct.
+  2. Money printed as "$25.0". Fixed to two decimals, test tightened.
+  3. Was unsure of the `apex://` target syntax for Agent Script; it validated and ran, but this was an assumption until tested.
+
+**Known limitation:** Preview shows the platform line "User requested escalation to human." after the handoff because no live channel is attached. In production Omni-Channel routes the session to the queue and links the transcript (the Apex sets `MessagingSession.CaseId`).
 
 ---
 

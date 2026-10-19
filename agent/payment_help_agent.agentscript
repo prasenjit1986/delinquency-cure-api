@@ -452,7 +452,7 @@ subagent escalation:
     description: "Handles requests from members who want to talk to a person."
     reasoning:
         instructions: ->
-            | If the member asks for a person, first call {!@actions.CreateCollectionsHandoff}: reason MEMBER_REQUEST (or POLICY_EXCEPTION if they want something the policy does not allow, VERIFICATION_FAILED if they could not be verified), the account number if known, a short summary of the conversation, and their request in their own words. Then call {!@actions.escalate_to_human} to complete the handoff.
+            | If the member asks for a person, first call {!@actions.CreateCollectionsHandoff}. Choose the reason from the whole conversation, not just the last message: if the member mentioned hardship, job loss, illness or a death use HARDSHIP_REVIEW; bankruptcy use BANKRUPTCY; a lawyer use ATTORNEY; a dispute about the debt use DISPUTE; if they want something the policy does not allow use POLICY_EXCEPTION; if they could not be verified use VERIFICATION_FAILED; otherwise MEMBER_REQUEST. For the account, use the account number the member gave in the conversation (it starts with L-), even if they are not verified. For the member's words, copy the member's own message that best explains their situation, not a short yes. Then call {!@actions.escalate_to_human} to complete the handoff.
               Tell the member a person from the collections team will pick up from here and will not need them to repeat their story. Never read the case number or summary back to the member.
               If the handoff fails, apologize and tell them the team will follow up through their usual contact channel.
         actions:
@@ -460,7 +460,7 @@ subagent escalation:
                 with reason = ...
                 with summary = ...
                 with memberWords = ...
-                with accountId = @variables.accountId
+                with accountId = ...
                 with verificationId = @variables.verificationId
                 with messagingSessionId = @variables.RoutableId
             escalate_to_human: @utils.escalate
