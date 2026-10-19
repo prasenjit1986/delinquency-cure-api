@@ -134,6 +134,21 @@ what I accepted, rejected or changed, how I verified it, and where it was wrong.
 - **Result:** Dana (L-50001), verify → summary → options all succeeded; quoted $597.16 incl. $25 fee, 12 DPD, promise by 2026-11-06, skip-a-pay $35, all matching the API. Evidence: `evidence/04_agent_happy_path_dana.jpg`.
 - **Mistake on my side:** the agent's developer name was saved doubled (`Payment_Help_AgentPayment_Help_Agent`) because a select-all keystroke didn't register. Cosmetic; the label is correct.
 
+### 14. Weekly autopay plan, and the agent becomes "Vera" (2026-10-18)
+- **My idea:** let members split the past-due amount into up to 4 weekly automatic payments, to get them onto automatic debits and bring the balance down steadily.
+- **AI pushback I accepted:**
+  1. **Four weekly payments can run past 30 days past due**, the usual point of credit-bureau reporting. Dana (12 DPD) would have been reported mid-plan while doing what we asked. Now the API caps the count so the last debit lands by day 29: 4 payments up to 7 DPD, 3 up to 14, 2 up to 21, not offered after that.
+  2. **No bank details in chat.** Debits come only from the member's checking account at the credit union, shown masked. An external bank via a secure link is designed, not built.
+  3. **The regular monthly payment is still due.** Dana's $572.16 is due 3 days after her last plan debit. Every plan message says so, to stop members thinking they're covered.
+  4. **Authorization before debiting.** Recurring debits need the member's authorization and a copy (Regulation E; to confirm with compliance). The agent previews the exact schedule, reads it back, asks "Do you authorize these automatic payments?", and only then creates the plan. The API refuses to create without `member_authorized`, and stores what was agreed, when and on which channel.
+  5. **Failed debit:** no retry, no fee; the plan ends. This avoids stacking overdraft fees on a member who is already short.
+- **Design:** the agent never calculates. The API returns the exact schedule (e.g. $199.05 / $199.05 / $199.06 = $597.16 to the cent).
+- **Caught by a test I asked for:** the spec exporter only publishes an approved list of operations (how admin endpoints stay out of Salesforce), and I forgot to add the new one, so the export said 7 operations, not 8. Added it, plus a test that fails if any member-facing operation is missing from the Salesforce spec.
+- **Tests:** 36 pass (9 new: plan length by DPD, preview creates nothing, authorization required, plan blocks a promise and a second plan, too many payments, too close to 30 DPD, no checking on file, verification required).
+- **Live test in Preview (Dana):** Vera offered "2 or 3 weekly payments" (the API's limit for 12 DPD, not the 4 first proposed), previewed the exact schedule ($199.05 / $199.05 / $199.06 from Checking ••1037), read the regular-payment warning, asked "Do you authorize these automatic payments?", and created the plan only after "yes". Evidence: `evidence/05_vera_weekly_plan_authorized.jpg`.
+- **Salesforce lesson:** re-entering the same spec URL in External Services does not refetch; changing it (`/openapi-sfdc.json?v=8ops`) does. The new operation also arrives unticked and must be selected.
+- **Persona:** named the agent Vera, from "My Favorite CU". Asked about a "Valley-girl" vs "Midwestern warmth" personality: chose warm, plain, neighborly, with no slang. In collections, tone is a compliance decision; slang reads as flippant about someone's debt.
+
 ---
 
 ## Template for new entries
