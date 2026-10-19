@@ -6,6 +6,16 @@ what a member is allowed to be offered, promises to pay, and "stop" flags.
 
 All data is synthetic. Names are invented, emails use `example.com`, phones use the fictional `555-01xx` range.
 
+## Panel materials
+
+| What | File |
+|---|---|
+| Panel deck (PDF, 11 slides) | [docs/panel/Vera_Panel_Deck.pdf](docs/panel/Vera_Panel_Deck.pdf) |
+| Architecture page (diagram, where each rule is enforced, gaps) | [docs/architecture.html](docs/architecture.html) |
+| Testing Center results (two runs, defects and fixes) | [eval/TESTING_CENTER_RESULTS.md](eval/TESTING_CENTER_RESULTS.md) |
+| Screenshots from the org | [evidence/](evidence/) |
+| How AI was used | [AI_USAGE_LOG.md](AI_USAGE_LOG.md) |
+
 ## What this proves (the tested uncertainty)
 
 > Can the agent be trusted to offer **only** what policy allows, and never disclose a debt to the wrong person?
