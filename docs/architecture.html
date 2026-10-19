@@ -1,0 +1,286 @@
+<title>Vera Architecture</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one wide system diagram, then three short reference sections. Credit-union ink on cool paper. */
+:root {
+  --bg: #f5f7f6;
+  --surface: #ffffff;
+  --fg: #16231f;
+  --muted: #5a6964;
+  --line: #c9d3cf;
+  --accent: #0d6b5a;
+  --accent-soft: #dcefe9;
+  --designed: #7a8681;
+  --warn: #9a5b00;
+  --font-body: "Public Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1614; --surface: #16201d; --fg: #e4ece9; --muted: #9aaba5; --line: #34433e;
+    --accent: #4cc2a7; --accent-soft: #173a32; --designed: #8b9893; --warn: #e0a54a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1614; --surface: #16201d; --fg: #e4ece9; --muted: #9aaba5; --line: #34433e;
+  --accent: #4cc2a7; --accent-soft: #173a32; --designed: #8b9893; --warn: #e0a54a; color-scheme: dark;
+}
+body { background: var(--bg); color: var(--fg); font: 15px/1.55 var(--font-body); }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 40px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 40px; }
+header { display: grid; gap: 8px; }
+.eyebrow { font: 500 12px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+h1 { margin: 0; font-size: clamp(28px, 4vw, 40px); line-height: 1.1; font-weight: 700; text-wrap: balance; }
+.lede { margin: 0; max-width: 68ch; color: var(--muted); }
+h2 { margin: 0 0 12px; font-size: 20px; font-weight: 700; text-wrap: balance; }
+section > p { margin: 0 0 12px; max-width: 70ch; }
+
+figure { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 12px; min-width: 0; }
+.scroll { overflow-x: auto; }
+svg.arch { display: block; width: 100%; min-width: 980px; height: auto; color: var(--fg); font-family: var(--font-body); }
+figcaption { font-size: 13px; color: var(--muted); max-width: 90ch; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 13px; color: var(--muted); align-items: center; }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.sw { width: 28px; height: 0; border-top: 2px solid var(--fg); display: inline-block; }
+.sw.dash { border-top: 2px dashed var(--designed); }
+.sw.acc { border-top: 3px solid var(--accent); }
+
+/* SVG roles */
+.frame { fill: none; stroke: var(--line); stroke-width: 1.2; }
+.lane { font: 600 11px var(--font-mono); letter-spacing: .08em; fill: var(--muted); text-transform: uppercase; }
+.box { fill: var(--surface); stroke: var(--fg); stroke-width: 1.3; }
+.box.sor { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2; }
+.box.design { fill: none; stroke: var(--designed); stroke-dasharray: 5 4; }
+.t { font-size: 13px; font-weight: 600; fill: var(--fg); }
+.s { font-size: 11.5px; fill: var(--muted); }
+.m { font: 11px var(--font-mono); fill: var(--fg); }
+.k { font-size: 11px; fill: var(--muted); font-style: italic; }
+.big { font-size: 22px; font-weight: 700; fill: var(--accent); }
+.edge { fill: none; stroke: var(--fg); stroke-width: 1.4; }
+.edge.design { stroke: var(--designed); stroke-dasharray: 5 4; }
+.edge.acc { stroke: var(--accent); stroke-width: 2.2; }
+.head { fill: var(--fg); }
+.head.design { fill: var(--designed); }
+.head.acc { fill: var(--accent); }
+.dt { fill: var(--designed); }
+
+/* tables */
+.tbl { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font: 600 11px var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+tr:last-child td { border-bottom: 0; }
+td code, p code, li code { font: 12.5px var(--font-mono); }
+.both { color: var(--accent); font-weight: 600; }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px; align-content: start; }
+.stat b { font-size: 26px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 13px; color: var(--muted); }
+
+ul.gaps { margin: 0; padding-left: 20px; display: grid; gap: 8px; max-width: 80ch; }
+ul.gaps b { font-weight: 600; }
+.foot { font-size: 13px; color: var(--muted); }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">My Favorite CU · early-delinquency cure · 1–29 days past due</div>
+    <h1>Vera Architecture</h1>
+    <p class="lede">How a member who is a few weeks behind gets from a text message to a resolved account or a collections officer, and where each rule is enforced. Solid lines are built and tested in the prototype. Dashed lines are the production path, designed but not built.</p>
+  </header>
+
+  <figure>
+    <div class="legend">
+      <span><i class="sw"></i> built and tested</span>
+      <span><i class="sw dash"></i> designed, production path</span>
+      <span><i class="sw acc"></i> policy enforced here (system of record)</span>
+    </div>
+    <div class="scroll">
+    <svg class="arch" viewBox="0 0 1120 640" role="img" aria-label="Three source systems load into Data 360, which unifies 60 members and builds a 24-member SMS outreach segment. A member chats with Vera on Agentforce. Vera calls the off-platform Collections Policy API for verification, amounts, eligible options and every write; the API re-validates policy. On handoff, an Apex action pulls facts from the API and creates a case in the Collections Officers queue in Service Cloud. Live Omni-Channel transfer, SMS activation and Embedded Messaging are designed, not built.">
+      <defs>
+        <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head"/></marker>
+        <marker id="ahd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head design"/></marker>
+        <marker id="aha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="head acc"/></marker>
+      </defs>
+
+      <!-- lane labels -->
+      <text x="20" y="30" class="lane">Systems of record</text>
+      <text x="250" y="30" class="lane">Data 360</text>
+      <text x="530" y="30" class="lane">Agentforce</text>
+      <text x="850" y="30" class="lane">Off-platform · collections</text>
+      <text x="20" y="418" class="lane">Service Cloud</text>
+
+      <!-- A: sources -->
+      <rect x="20" y="62" width="180" height="56" rx="6" class="box"/>
+      <text x="32" y="85" class="t">Core banking</text>
+      <text x="32" y="104" class="s">members · DOB · ZIP</text>
+      <rect x="20" y="142" width="180" height="56" rx="6" class="box"/>
+      <text x="32" y="165" class="t">Collections</text>
+      <text x="32" y="184" class="s">loans · days past due · flags</text>
+      <rect x="20" y="222" width="180" height="56" rx="6" class="box"/>
+      <text x="32" y="245" class="t">Digital banking</text>
+      <text x="32" y="264" class="s">SMS / email consent</text>
+
+      <!-- B: Data 360 -->
+      <rect x="240" y="44" width="250" height="340" rx="10" class="frame"/>
+      <rect x="260" y="62" width="210" height="44" rx="6" class="box"/>
+      <text x="272" y="89" class="t">3 data streams</text>
+      <rect x="260" y="132" width="210" height="56" rx="6" class="box"/>
+      <text x="272" y="155" class="t">Identity resolution</text>
+      <text x="272" y="174" class="s">60 Unified Individuals</text>
+      <rect x="260" y="214" width="210" height="150" rx="6" class="box"/>
+      <text x="272" y="237" class="t">Outreach segment</text>
+      <text x="272" y="257" class="s">1–29 days past due</text>
+      <text x="272" y="275" class="s">AND no stop flag</text>
+      <text x="272" y="293" class="s">AND SMS consent = true</text>
+      <text x="272" y="335" class="big">24</text>
+      <text x="306" y="335" class="s">members, = hand count</text>
+
+      <!-- A -> B -->
+      <path d="M200,90 C228,90 232,84 258,84" class="edge" marker-end="url(#ah)"/>
+      <path d="M200,170 C232,170 236,92 258,92" class="edge" marker-end="url(#ah)"/>
+      <path d="M200,250 C238,250 240,100 258,100" class="edge" marker-end="url(#ah)"/>
+      <text x="24" y="302" class="k">file upload today,</text>
+      <text x="24" y="316" class="k">daily batch in prod</text>
+      <line x1="365" y1="106" x2="365" y2="130" class="edge" marker-end="url(#ah)"/>
+      <line x1="365" y1="188" x2="365" y2="212" class="edge" marker-end="url(#ah)"/>
+
+      <!-- C: Vera -->
+      <rect x="530" y="62" width="270" height="214" rx="10" class="box"/>
+      <text x="546" y="86" class="t">Vera · service agent</text>
+      <text x="546" y="104" class="s">Agent Script, 6 subagents</text>
+      <rect x="546" y="118" width="238" height="26" rx="4" class="frame"/>
+      <text x="556" y="135" class="m">router → verification</text>
+      <rect x="546" y="150" width="116" height="26" rx="4" class="frame"/>
+      <text x="556" y="167" class="m">past-due help</text>
+      <rect x="668" y="150" width="116" height="26" rx="4" class="frame"/>
+      <text x="676" y="167" class="m">stop &amp; hardship</text>
+      <rect x="546" y="182" width="116" height="26" rx="4" class="frame"/>
+      <text x="556" y="199" class="m">escalation</text>
+      <rect x="668" y="182" width="116" height="26" rx="4" class="frame"/>
+      <text x="676" y="199" class="m">off-topic</text>
+      <text x="546" y="232" class="s">Quotes only what the API returns.</text>
+      <text x="546" y="250" class="s">Locked to one verified account.</text>
+
+      <!-- outreach + member -->
+      <rect x="530" y="316" width="118" height="48" rx="6" class="box design"/>
+      <text x="542" y="337" class="t dt">SMS outreach</text>
+      <text x="542" y="354" class="s">activation</text>
+      <rect x="690" y="316" width="156" height="66" rx="6" class="box"/>
+      <text x="702" y="337" class="t">Member</text>
+      <text x="702" y="355" class="s">chat in Preview today,</text>
+      <text x="702" y="371" class="s">Embedded Messaging in prod</text>
+      <path d="M470,300 C500,300 505,340 528,340" class="edge design" marker-end="url(#ahd)"/>
+      <line x1="648" y1="340" x2="688" y2="340" class="edge design" marker-end="url(#ahd)"/>
+      <line x1="768" y1="316" x2="768" y2="278" class="edge" marker-end="url(#ah)"/>
+      <text x="775" y="302" class="k">chat</text>
+
+      <!-- D: Collections API -->
+      <rect x="850" y="62" width="250" height="290" rx="10" class="box sor"/>
+      <text x="866" y="86" class="t">Collections Policy API</text>
+      <text x="866" y="104" class="s">FastAPI on Render · system of record</text>
+      <text x="866" y="132" class="m">POST verifications</text>
+      <text x="866" y="150" class="m">GET  summary   (only quotable $)</text>
+      <text x="866" y="168" class="m">GET  options   (+ reason codes)</text>
+      <text x="866" y="186" class="m">POST promises  (idempotent)</text>
+      <text x="866" y="204" class="m">POST skip-pay · payment-plans</text>
+      <text x="866" y="222" class="m">POST flags     (no verify needed)</text>
+      <line x1="866" y1="238" x2="1084" y2="238" class="frame"/>
+      <text x="866" y="258" class="s">Re-validates every write.</text>
+      <text x="866" y="276" class="s">Verification per account, 15 min,</text>
+      <text x="866" y="294" class="s">locks after 3 failures.</text>
+      <text x="866" y="320" class="s">Audit log with reason codes.</text>
+
+      <!-- Vera <-> API -->
+      <line x1="800" y1="120" x2="848" y2="120" class="edge acc" marker-end="url(#aha)"/>
+      <line x1="848" y1="150" x2="802" y2="150" class="edge" marker-end="url(#ah)"/>
+      <text x="600" y="52" class="k">calls go through External Service + Named Credential (API key never in the agent)</text>
+      <text x="806" y="112" class="s">calls</text>
+      <text x="806" y="168" class="s">facts</text>
+
+      <!-- Service Cloud lane -->
+      <rect x="20" y="430" width="1080" height="190" rx="10" class="frame"/>
+      <rect x="560" y="452" width="240" height="56" rx="6" class="box"/>
+      <text x="572" y="475" class="t">CreateCollectionsHandoff</text>
+      <text x="572" y="494" class="s">Apex invocable action</text>
+      <rect x="280" y="452" width="230" height="56" rx="6" class="box"/>
+      <text x="292" y="475" class="t">Case · Collections Officers</text>
+      <text x="292" y="494" class="s">queue · priority by reason</text>
+      <rect x="40" y="452" width="200" height="56" rx="6" class="box"/>
+      <text x="52" y="475" class="t">Collections officer</text>
+      <text x="52" y="494" class="s">Service Console</text>
+
+      <!-- Vera -> Apex -->
+      <line x1="620" y1="276" x2="620" y2="450" class="edge" marker-end="url(#ah)"/>
+      <text x="612" y="400" class="k" text-anchor="end">on "talk to a person"</text>
+      <text x="612" y="414" class="k" text-anchor="end">or hardship + yes</text>
+      <!-- Apex -> API facts -->
+      <path d="M800,480 L975,480 L975,354" class="edge acc" marker-end="url(#aha)"/>
+      <text x="830" y="472" class="k">callout: facts for the officer</text>
+      <!-- Apex -> Case -> Officer -->
+      <line x1="560" y1="480" x2="512" y2="480" class="edge" marker-end="url(#ah)"/>
+      <text x="535" y="472" class="k" text-anchor="middle">creates</text>
+      <line x1="280" y1="480" x2="242" y2="480" class="edge" marker-end="url(#ah)"/>
+      <text x="261" y="472" class="k" text-anchor="middle">works</text>
+
+      <!-- production: Omni-Channel live transfer -->
+      <rect x="280" y="548" width="230" height="52" rx="6" class="box design"/>
+      <text x="292" y="570" class="t dt">Omni-Channel</text>
+      <text x="292" y="588" class="s">live transfer · transcript linked</text>
+      <path d="M665,276 L665,574 L512,574" class="edge design" marker-end="url(#ahd)"/>
+      <text x="673" y="560" class="k">escalate (prod)</text>
+      <path d="M280,574 L140,574 L140,510" class="edge design" marker-end="url(#ahd)"/>
+      <text x="148" y="592" class="k">same officer, same case</text>
+    </svg>
+    </div>
+    <figcaption>Vera never decides policy. Every amount she quotes and every option she offers comes back from the Collections Policy API, and every write is re-checked there, so a manipulated or mistaken agent still cannot book an out-of-policy promise. On handoff the case is filled with facts pulled from the same API, not from Vera's memory of the chat.</figcaption>
+  </figure>
+
+  <section>
+    <h2>Where each rule is enforced</h2>
+    <p>Rules that protect the member or the credit union live in the system of record first. The agent repeats them so the conversation is right, but it is not the last line of defense.</p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Rule</th><th>Enforced in</th><th>Evidence</th></tr></thead>
+        <tbody>
+          <tr><td>No debt details before the right person is verified</td><td class="both">API and agent</td><td>API returns 403; Testing Center T05, T08</td></tr>
+          <tr><td>Verification covers one account only</td><td class="both">API and agent</td><td>API test; Testing Center T09</td></tr>
+          <tr><td>Promise date no later than the policy allows</td><td class="both">API and agent</td><td>Server rejects; Testing Center T11, T18, T20 (prompt injection)</td></tr>
+          <tr><td>Only eligible options are offered</td><td class="both">API and agent</td><td><code>/options</code> with reason codes; Testing Center T14–T17</td></tr>
+          <tr><td>Fee waivers and hardship always go to a person</td><td class="both">API and agent</td><td><code>requires_human</code>; Testing Center T10, T27–T29</td></tr>
+          <tr><td>A stop request is honored at once, even unverified</td><td class="both">API and agent</td><td>Flag endpoint needs no verification; Testing Center T24</td></tr>
+          <tr><td>Weekly automatic debits need explicit authorization</td><td class="both">API and agent</td><td>API refuses without <code>member_authorized</code>; preview first</td></tr>
+          <tr><td>SMS only with consent; stale "yes" never wins</td><td>Data 360</td><td>Segment 24 = hand count; consent rule gap noted below</td></tr>
+          <tr><td>Officer sees facts from the system, not the AI</td><td>Apex handoff</td><td>Apex tests 3/3; cases 00001026, 00001028</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>What has been tested</h2>
+    <div class="stats">
+      <div class="stat"><b>35 / 36</b><span>Testing Center, live mode, after fixing 5 defects found in run 1</span></div>
+      <div class="stat"><b>36</b><span>API tests passing: policy, verification, idempotency, lockout</span></div>
+      <div class="stat"><b>3 / 3</b><span>Apex handoff tests, including the API being down</span></div>
+      <div class="stat"><b>24</b><span>Outreach segment members, matching the count calculated from the files</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Gaps before production</h2>
+    <ul class="gaps">
+      <li><b>Live transfer.</b> Handoff today creates a case. Production adds Embedded Messaging and Omni-Channel so the chat moves to the officer live and the transcript links to the case. The Apex already sets <code>MessagingSession.CaseId</code>; that path is untested.</li>
+      <li><b>SMS activation.</b> The segment exists; sending through a consented SMS channel with quiet hours is designed, not built.</li>
+      <li><b>Consent conflicts.</b> Consent uses the "last updated" rule. With stale duplicate profiles that can pick an old "yes". Production should treat any recent "no" as no, or drop stale profiles at ingestion.</li>
+      <li><b>Speed.</b> Median reply 6.1 s, p90 8.5 s, on a free Render instance with three calls in a row. Paid hosting and one combined summary-and-options call would cut most of it.</li>
+      <li><b>Pay now.</b> Vera says a secure payment link will be sent; the payment link itself is not built.</li>
+      <li><b>Policy numbers.</b> Windows, fees and limits are synthetic and must be confirmed against the credit union's real policy.</li>
+    </ul>
+  </section>
+
+  <p class="foot">Prototype state as of 19 Oct 2026. Source: github.com/prasenjit1986/delinquency-cure-api (API, Agent Script, Apex, test sets, evidence).</p>
+</div>
