@@ -120,6 +120,20 @@ what I accepted, rejected or changed, how I verified it, and where it was wrong.
   3. **Spec served from the API itself** (`/openapi-sfdc.json`) instead of a hand upload, so Salesforce always imports what is actually deployed. A test checks the served spec matches the exported file.
 - **Risk carried forward:** free plan sleeps when idle; first call can take 30–60 seconds and may time out an agent action. Warm it up before the panel, or pay for that week.
 
+### 13. Agentforce agent "Payment Help Agent" (2026-10-18)
+- **Builder choice:** used the new Agentforce Builder (Agent Script). The legacy builder shows a retirement notice; building on it would be a weak spot on the panel. Agent Script also allows deterministic steps, which removed our biggest open risk (below).
+- **Design (script in `agent/payment_help_agent.agentscript`):**
+  - Router → Member Verification (only when not verified) → Past-Due Help (only when verified). Stop and Hardship is reachable at any point, even before verification.
+  - After `VerifyMember`, the **script** (not the AI model) stores `isVerified`, `verificationId` and `accountId`. Every account call takes the account and verification ID from these variables, so the model can't switch accounts or drop the ID.
+  - Writes (promise, skip-a-pay) need explicit member confirmation (`require_user_confirmation`), on top of the server re-checking policy.
+- **How the action definitions were obtained:** generated each External Services action once through the builder's menu, then read the generated script, instead of guessing the format.
+- **Where it went wrong, and how it was caught (live Preview test):**
+  1. **Salesforce renames underscore fields:** `verification_id` becomes `verificationx5fid` in the agent runtime. My first script used the API's names, so the ID was silently never stored and every account call was refused (403). Caught in the Preview trace: `isVerified` updated but the ID didn't. Fixed by using the encoded names. **Panel talking point:** contract mismatches like this are why I test through the real runtime, not just the API.
+  2. **Re-import didn't refresh the schema:** after adding `account_id` to the verify response, re-entering the spec URL in External Services kept the old stored copy. Caught because the field was absent from the live response. Fixed by updating the stored schema directly, then confirmed by re-reading it.
+  3. **Good failure behavior, for free:** while the ID was missing, the agent said it couldn't retrieve the amount and offered a person instead of guessing a number (test T38's expected behavior).
+- **Result:** Dana (L-50001), verify → summary → options all succeeded; quoted $597.16 incl. $25 fee, 12 DPD, promise by 2026-11-06, skip-a-pay $35, all matching the API. Evidence: `evidence/04_agent_happy_path_dana.jpg`.
+- **Mistake on my side:** the agent's developer name was saved doubled (`Payment_Help_AgentPayment_Help_Agent`) because a select-all keystroke didn't register. Cosmetic; the label is correct.
+
 ---
 
 ## Template for new entries
