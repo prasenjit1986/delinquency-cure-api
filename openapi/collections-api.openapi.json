@@ -296,6 +296,68 @@
         }
       }
     },
+    "/v1/accounts/{account_id}/payment-plans": {
+      "post": {
+        "tags": [
+          "member"
+        ],
+        "summary": "Weekly autopay plan from CU checking. Call with preview=true first; create only after the member agrees",
+        "operationId": "createWeeklyPaymentPlan",
+        "parameters": [
+          {
+            "name": "account_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Account Id"
+            }
+          },
+          {
+            "name": "X-Verification-Id",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "X-Verification-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WriteResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/accounts/{account_id}/flags": {
       "post": {
         "tags": [
@@ -560,6 +622,18 @@
             "type": "boolean",
             "title": "Requires Human",
             "default": false
+          },
+          "max_payments": {
+            "type": "integer",
+            "title": "Max Payments",
+            "description": "WEEKLY_AUTOPAY_PLAN only: most weekly debits allowed",
+            "default": 0
+          },
+          "funding_account": {
+            "type": "string",
+            "title": "Funding Account",
+            "description": "WEEKLY_AUTOPAY_PLAN only: masked CU checking to debit",
+            "default": ""
           }
         },
         "type": "object",
@@ -603,6 +677,41 @@
           "options"
         ],
         "title": "OptionsResponse"
+      },
+      "PlanRequest": {
+        "properties": {
+          "payments": {
+            "type": "integer",
+            "maximum": 4.0,
+            "minimum": 2.0,
+            "title": "Payments",
+            "description": "Number of weekly debits",
+            "example": 3
+          },
+          "preview": {
+            "type": "boolean",
+            "title": "Preview",
+            "description": "True: return the exact schedule without creating anything. False: create the plan (only after the member says yes).",
+            "default": true
+          },
+          "member_authorized": {
+            "type": "boolean",
+            "title": "Member Authorized",
+            "description": "Must be true when preview is false: the member explicitly agreed to the debits read back to them.",
+            "default": false
+          },
+          "channel": {
+            "type": "string",
+            "title": "Channel",
+            "default": "AGENT_CHAT",
+            "example": "AGENT_CHAT"
+          }
+        },
+        "type": "object",
+        "required": [
+          "payments"
+        ],
+        "title": "PlanRequest"
       },
       "PromiseRequest": {
         "properties": {

@@ -46,6 +46,16 @@ class Promise:
 
 
 @dataclass
+class PaymentPlan:
+    plan_id: str
+    account_id: str
+    funding_account: str
+    debits: list[dict]          # [{"date": "YYYY-MM-DD", "amount": 199.05}, ...]
+    authorization: dict         # what the member agreed to, when, on which channel
+    status: str = "ACTIVE"
+
+
+@dataclass
 class State:
     members: dict[str, Member] = field(default_factory=dict)
     accounts: dict[str, Account] = field(default_factory=dict)
@@ -53,6 +63,7 @@ class State:
     failed_attempts: dict[str, int] = field(default_factory=dict)
     promises: dict[str, Promise] = field(default_factory=dict)
     skip_pays: dict[str, str] = field(default_factory=dict)   # account_id -> enrollment id
+    plans: dict[str, PaymentPlan] = field(default_factory=dict)
     flags_log: list[dict] = field(default_factory=list)
     idempotency: dict[str, dict] = field(default_factory=dict)
     audit: deque = field(default_factory=lambda: deque(maxlen=500))
@@ -60,6 +71,21 @@ class State:
 
 _lock = threading.Lock()
 state = State()
+
+
+def _checking_on_file(member_id: str) -> str:
+    """Synthetic, deterministic masked checking account. Never a full number."""
+    if member_id in config.NO_CHECKING_MEMBERS:
+        return ""
+    n = int(member_id.split("-")[1])
+    return f"Checking ••{(n * 37 + 4000) % 10000:04d}"
+
+
+def active_plan(account_id: str) -> PaymentPlan | None:
+    for p in state.plans.values():
+        if p.account_id == account_id and p.status == "ACTIVE":
+            return p
+    return None
 
 
 def load(data_dir: Path | None = None) -> None:
@@ -81,6 +107,7 @@ def load(data_dir: Path | None = None) -> None:
                 last_skip_pay_date=_d(r["last_skip_pay_date"]),
                 last_broken_promise_date=_d(r["last_broken_promise_date"]),
                 flags={r["account_flag"]} if r["account_flag"] else set(),
+                funding_account=_checking_on_file(r["member_id"]),
             )
     global state
     with _lock:

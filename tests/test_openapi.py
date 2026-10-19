@@ -19,6 +19,10 @@ def test_spec_exports_as_valid_openapi_30():
     ops = {op["operationId"] for p in spec["paths"].values() for op in p.values()}
     assert "getAudit" not in ops, "admin routes must not be exposed to the agent"
     assert {"verifyMember", "getEligibleOptions", "createPromiseToPay"} <= ops
+    from app.main import app
+    member_ops = {r.operation_id for r in app.routes
+                  if getattr(r, "tags", None) and "member" in r.tags and r.include_in_schema}
+    assert member_ops <= ops, f"member operations missing from the Salesforce spec: {member_ops - ops}"
     text = (ROOT / "openapi/collections-api.openapi.yaml").read_text()
     assert "anyOf" not in text, "mixed/nullable types can break External Services import"
     assert "examples:" not in text and "type: 'null'" not in text, "3.1-only constructs"

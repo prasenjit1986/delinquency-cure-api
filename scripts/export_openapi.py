@@ -24,7 +24,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from app.main import app  # noqa: E402
 
 AGENT_OPERATIONS = {"verifyMember", "getAccountSummary", "getEligibleOptions",
-                    "createPromiseToPay", "enrollSkipAPay", "setAccountFlag", "listDelinquencies"}
+                    "createPromiseToPay", "enrollSkipAPay", "createWeeklyPaymentPlan",
+                    "setAccountFlag", "listDelinquencies"}
 
 
 def downgrade(node):

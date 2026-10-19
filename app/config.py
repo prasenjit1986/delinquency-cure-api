@@ -23,5 +23,9 @@ MAX_VERIFICATION_ATTEMPTS = int(os.getenv("MAX_VERIFICATION_ATTEMPTS", "3"))
 
 PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "http://localhost:8000")
 
+# Synthetic: every member has a CU checking account on file except these, so the
+# demo can show the "no account to debit" path. Grace Huang (L-50005).
+NO_CHECKING_MEMBERS = {"M-1005"}
+
 if API_KEY.startswith("dev-") or ADMIN_API_KEY.startswith("dev-"):
     log.warning("Using default dev API keys. Set API_KEY and ADMIN_API_KEY before deploying.")

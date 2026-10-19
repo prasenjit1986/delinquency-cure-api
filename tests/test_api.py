@@ -210,3 +210,77 @@ def test_audit_records_blocked_disclosure(client):
     client.get(f"/v1/accounts/{DANA[0]}/summary", headers=H)
     events = client.get("/v1/audit", headers=ADMIN).json()
     assert any(e["action"] == "DISCLOSURE_BLOCKED" for e in events)
+
+
+# --- weekly autopay plan ---
+
+def plan(c, persona, hv, payments, preview=True, authorized=False):
+    return c.post(f"/v1/accounts/{persona[0]}/payment-plans", headers=hv,
+                  json={"payments": payments, "preview": preview,
+                        "member_authorized": authorized}).json()
+
+
+def test_plan_count_shrinks_so_last_debit_lands_before_30_dpd(client):
+    from datetime import date
+    from app import policy
+    assert policy.plan_max_payments(1) == 4
+    assert policy.plan_max_payments(7) == 4      # last debit day 7+1+21 = 29
+    assert policy.plan_max_payments(8) == 3
+    assert policy.plan_max_payments(12) == 3     # Dana
+    assert policy.plan_max_payments(21) == 2
+    assert policy.plan_max_payments(22) == 1     # not offered (needs 2)
+    for dpd in range(1, 30):
+        n = policy.plan_max_payments(dpd)
+        if n:
+            assert dpd + 1 + 7 * (n - 1) <= 29, dpd
+
+
+def test_plan_option_for_dana(client):
+    o = opts(client, DANA, verify(client, DANA))["WEEKLY_AUTOPAY_PLAN"]
+    assert o["eligible"] and o["max_payments"] == 3
+    assert o["funding_account"].startswith("Checking ••") and len(o["funding_account"]) == 15
+    assert o["amount"] == 597.16
+
+
+def test_plan_preview_has_exact_schedule_and_creates_nothing(client):
+    hv = verify(client, DANA)
+    r = plan(client, DANA, hv, 3)
+    assert r["accepted"] and r["status"] == "PREVIEW" and r["id"] == ""
+    assert "$199.05 on 2026-10-24" in r["message"] and "$199.06 on 2026-11-07" in r["message"]
+    assert "Total $597.16" in r["message"] and "still due" in r["message"]
+    assert opts(client, DANA, hv)["PROMISE_TO_PAY"]["eligible"], "preview must not create a plan"
+
+
+def test_plan_requires_explicit_member_authorization(client):
+    r = plan(client, DANA, verify(client, DANA), 3, preview=False, authorized=False)
+    assert not r["accepted"] and r["reason_code"] == "PLAN_AUTHORIZATION_REQUIRED"
+
+
+def test_plan_created_blocks_promise_and_second_plan(client):
+    hv = verify(client, DANA)
+    r = plan(client, DANA, hv, 2, preview=False, authorized=True)
+    assert r["accepted"] and r["id"].startswith("PLN-") and "copy of this authorization" in r["message"]
+    o = opts(client, DANA, hv)
+    assert o["PROMISE_TO_PAY"]["reason_code"] == "PLAN_ALREADY_ACTIVE"
+    assert o["WEEKLY_AUTOPAY_PLAN"]["reason_code"] == "PLAN_ALREADY_ACTIVE"
+    assert plan(client, DANA, hv, 2, preview=False, authorized=True)["reason_code"] == "PLAN_ALREADY_ACTIVE"
+
+
+def test_plan_rejects_more_payments_than_allowed(client):
+    r = plan(client, DANA, verify(client, DANA), 4)
+    assert not r["accepted"] and r["reason_code"] == "PLAN_PAYMENTS_OUT_OF_RANGE"
+
+
+def test_plan_not_offered_close_to_30_dpd(client):
+    o = opts(client, KEN, verify(client, KEN))["WEEKLY_AUTOPAY_PLAN"]
+    assert not o["eligible"] and o["reason_code"] == "PLAN_TOO_CLOSE_TO_30_DPD"
+
+
+def test_plan_needs_checking_on_file(client):
+    o = opts(client, GRACE, verify(client, GRACE))["WEEKLY_AUTOPAY_PLAN"]
+    assert not o["eligible"] and o["reason_code"] == "PLAN_NO_CHECKING_ON_FILE"
+
+
+def test_plan_requires_verification(client):
+    r = client.post(f"/v1/accounts/{DANA[0]}/payment-plans", headers=H, json={"payments": 2})
+    assert r.status_code == 403

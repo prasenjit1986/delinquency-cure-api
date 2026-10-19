@@ -140,6 +140,17 @@ class OptionOut(BaseModel):
     latest_date: str = ""
     fee: float = 0.0
     requires_human: bool = False
+    max_payments: int = Field(default=0, description="WEEKLY_AUTOPAY_PLAN only: most weekly debits allowed")
+    funding_account: str = Field(default="", description="WEEKLY_AUTOPAY_PLAN only: masked CU checking to debit")
+
+
+class PlanRequest(BaseModel):
+    payments: int = Field(ge=2, le=4, description="Number of weekly debits", examples=[3])
+    preview: bool = Field(default=True, description="True: return the exact schedule without creating "
+                          "anything. False: create the plan (only after the member says yes).")
+    member_authorized: bool = Field(default=False, description="Must be true when preview is false: "
+                                    "the member explicitly agreed to the debits read back to them.")
+    channel: str = Field(default="AGENT_CHAT", examples=["AGENT_CHAT"])
 
 
 class OptionsResponse(BaseModel):
@@ -287,7 +298,8 @@ def options(account_id: str,
     acct = _account(account_id)
     _require_verified(account_id, x_verification_id, caller)
     opts = policy.evaluate_options(acct, config.BUSINESS_DATE,
-                                   store.active_promise(account_id) is not None)
+                                   store.active_promise(account_id) is not None,
+                                   store.active_plan(account_id) is not None)
     eligible = [o.code for o in opts if o.eligible]
     store.audit({"caller": caller, "action": "OPTIONS", "account_id": account_id,
                  "eligible": eligible,
@@ -314,6 +326,8 @@ def create_promise(account_id: str, body: PromiseRequest,
                            message="promise_date must be YYYY-MM-DD")
     d = policy.validate_promise(acct, body.amount, pdate, config.BUSINESS_DATE,
                                 store.active_promise(account_id) is not None)
+    if d.accepted and store.active_plan(account_id):
+        d = policy.Decision(False, "PLAN_ALREADY_ACTIVE", "A weekly payment plan is already set up.")
     if not d.accepted:
         result = WriteResult(accepted=False, reason_code=d.reason_code, message=d.reason)
     else:
@@ -340,7 +354,8 @@ def enroll_skip_pay(account_id: str,
     acct = _account(account_id)
     _require_verified(account_id, x_verification_id, caller)
     d = policy.validate_skip_pay(acct, config.BUSINESS_DATE,
-                                 store.active_promise(account_id) is not None)
+                                 store.active_promise(account_id) is not None,
+                                 store.active_plan(account_id) is not None)
     if d.accepted:
         eid = store.new_id("SKP")
         store.state.skip_pays[account_id] = eid
@@ -350,6 +365,57 @@ def enroll_skip_pay(account_id: str,
     else:
         result = WriteResult(accepted=False, reason_code=d.reason_code, message=d.reason)
     store.audit({"caller": caller, "action": "SKIP_PAY", "account_id": account_id,
+                 "accepted": result.accepted, "reason_code": result.reason_code})
+    return result
+
+
+def _money(x: float) -> str:
+    return f"${x:,.2f}"
+
+
+def _plan_text(acct: policy.Account, schedule: list[tuple[date, float]]) -> str:
+    debits = "; ".join(f"{_money(a)} on {d.isoformat()}" for d, a in schedule)
+    return (f"{len(schedule)} weekly payments from {acct.funding_account}: {debits}. "
+            f"Total {_money(sum(a for _, a in schedule))}, which brings the past-due balance to zero. "
+            f"Your regular monthly payment of {_money(acct.monthly_payment)} is still due on "
+            f"{acct.next_due_date.isoformat()} and is not part of this plan. "
+            "If a payment can't be made, it won't be retried and no fee is charged, "
+            "but the plan will end.")
+
+
+@app.post("/v1/accounts/{account_id}/payment-plans", response_model=WriteResult, tags=["member"],
+          operation_id="createWeeklyPaymentPlan",
+          summary="Weekly autopay plan from CU checking. Call with preview=true first; "
+                  "create only after the member agrees")
+def create_plan(account_id: str, body: PlanRequest,
+                x_verification_id: str = Header(default="", alias="X-Verification-Id"),
+                caller: str = Depends(require_key)) -> WriteResult:
+    acct = _account(account_id)
+    _require_verified(account_id, x_verification_id, caller)
+    d = policy.validate_plan(acct, config.BUSINESS_DATE, body.payments,
+                             store.active_promise(account_id) is not None,
+                             store.active_plan(account_id) is not None)
+    if d.accepted and not body.preview and not body.member_authorized:
+        d = policy.Decision(False, "PLAN_AUTHORIZATION_REQUIRED",
+                            "Read the schedule to the member and get a clear yes before creating the plan.")
+    if not d.accepted:
+        result = WriteResult(accepted=False, reason_code=d.reason_code, message=d.reason)
+    else:
+        schedule = policy.plan_schedule(acct, config.BUSINESS_DATE, body.payments)
+        text = _plan_text(acct, schedule)
+        if body.preview:
+            result = WriteResult(accepted=True, status="PREVIEW", message=text)
+        else:
+            plan = store.PaymentPlan(
+                store.new_id("PLN"), account_id, acct.funding_account,
+                [{"date": dt.isoformat(), "amount": a} for dt, a in schedule],
+                {"text": text, "authorized_at": store.now().isoformat(timespec="seconds"),
+                 "channel": body.channel, "caller": caller})
+            store.state.plans[plan.plan_id] = plan
+            result = WriteResult(accepted=True, id=plan.plan_id, status=plan.status,
+                                 message=text + " A copy of this authorization will be sent to you.")
+    store.audit({"caller": caller, "action": "PLAN_PREVIEW" if body.preview else "PLAN_CREATE",
+                 "account_id": account_id, "payments": body.payments,
                  "accepted": result.accepted, "reason_code": result.reason_code})
     return result
 
