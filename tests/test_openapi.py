@@ -22,3 +22,15 @@ def test_spec_exports_as_valid_openapi_30():
     text = (ROOT / "openapi/collections-api.openapi.yaml").read_text()
     assert "anyOf" not in text, "mixed/nullable types can break External Services import"
     assert "examples:" not in text and "type: 'null'" not in text, "3.1-only constructs"
+
+
+def test_salesforce_spec_is_served_and_matches_export():
+    import json
+    from fastapi.testclient import TestClient
+    from app.main import app
+    with TestClient(app) as c:
+        r = c.get("/openapi-sfdc.json")
+    assert r.status_code == 200
+    served = r.json()
+    assert served["openapi"] == "3.0.3"
+    assert served == json.loads((ROOT / "openapi/collections-api.openapi.json").read_text())

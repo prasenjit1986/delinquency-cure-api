@@ -20,6 +20,9 @@ from contextlib import asynccontextmanager
 from datetime import date
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
+from pathlib import Path
+
+from fastapi import Response
 from fastapi.responses import PlainTextResponse
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, Field
@@ -185,6 +188,16 @@ def _require_verified(account_id: str, verification_id: str | None, caller: str)
 @app.get("/health", tags=["ops"], operation_id="health")
 def health() -> dict:
     return {"status": "ok", "business_date": config.BUSINESS_DATE.isoformat()}
+
+
+_SFDC_SPEC = Path(__file__).resolve().parent.parent / "openapi" / "collections-api.openapi.json"
+
+
+@app.get("/openapi-sfdc.json", include_in_schema=False)
+def openapi_for_salesforce() -> Response:
+    """OpenAPI 3.0 spec for Salesforce External Services (the built-in /openapi.json is 3.1).
+    Public on purpose: it describes the API but contains no data or secrets."""
+    return Response(_SFDC_SPEC.read_text(), media_type="application/json")
 
 
 @app.get("/v1/delinquencies", response_model=DelinquencyList, tags=["outreach"],
