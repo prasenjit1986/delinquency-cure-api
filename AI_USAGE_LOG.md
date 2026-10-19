@@ -104,6 +104,22 @@ what I accepted, rejected or changed, how I verified it, and where it was wrong.
   - **Honest caveat:** the conflicting members came out "no", which is the safe answer, but by chance. The rule is still "Last Updated", so a future load could flip them. The fix stands as stated above.
 - **Lost work, caught:** the first time, I left the builder without saving and the conditions were lost. The segment list still showed 60, which gave it away. Lesson: check the saved record, not the editor screen.
 
+### 12. Deploy and connect Salesforce to the API (2026-10-18)
+- **Hosting:** Render free plan from `render.yaml`; live at `https://collections-policy-api.onrender.com`. Checked: `/health` ok; data endpoints without a key return "Missing or invalid X-API-Key".
+- **Repo:** rejected reusing an old unrelated repo (it held a different app); created `delinquency-cure-api`.
+- **Salesforce wiring:**
+  - External Credential `CollectionsApiKey` (Custom), principal `RenderApi` holding the key; custom header `X-API-Key = {!$Credential.CollectionsApiKey.ApiKey}`. The key never appears in prompts or code.
+  - Only the agent-level key went into Salesforce. The admin key (audit log, reset) stays out: least privilege, and a prompt-injected agent can't reach admin functions.
+  - Named Credential `CollectionsAPI` → Render URL; "Generate Authorization Header" off, formulas in headers on.
+  - Permission set `Collections API Access` grants the principal; assigned to me (agent user later).
+  - External Service `CollectionsPolicyAPI`: 7 operations imported with no schema errors. The 3.0 downgrade from entry 3 paid off.
+- **End-to-end proof:** an Apex callout through the Named Credential returned **200, count 39**, the same 39 as Data 360 and the CSV.
+- **Where AI was wrong or caught something:**
+  1. **Test silently broke the deliverable.** Running the tests re-exported the spec and reset the server URL to a placeholder, so Salesforce would have called a non-existent host. Caught by checking the file after the test run. Fixed the default; added a test that fails on the placeholder.
+  2. **A mis-click saved nothing.** The first permission-set save hit Cancel. Caught by checking the list, not trusting the click.
+  3. **Spec served from the API itself** (`/openapi-sfdc.json`) instead of a hand upload, so Salesforce always imports what is actually deployed. A test checks the served spec matches the exported file.
+- **Risk carried forward:** free plan sleeps when idle; first call can take 30–60 seconds and may time out an agent action. Warm it up before the panel, or pay for that week.
+
 ---
 
 ## Template for new entries
