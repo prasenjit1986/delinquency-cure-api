@@ -8,8 +8,8 @@ Date: 2026-10-19. Org: Developer Edition. Agent: Vera, Version 1 (Draft). Mode: 
 |---|---|---|
 | Response check (platform judge) | 34 / 36 | **35 / 36** |
 | Response check (my own review, stricter) | 31 / 36 | **36 / 36** (one platform fail is a judge disagreement, see below) |
-| Subagent check | 10 / 36 * | **34 / 36** |
-| Action check | 26 / 36 * | **35 / 36** |
+| Subagent check | 9 / 36 * | **34 / 36** |
+| Action check | 28 / 36 * | **35 / 36** |
 | Latency, median / p90 | n/a | **6.1 s / 8.5 s** |
 
 \* Run 1 subagent and action numbers mostly measured my expectations, not Vera. Testing Center scores the **first** subagent the router picks (with credentials in the message, that is `member_verification`) and the **required** actions. I had written the final subagent and every possible look-up. Run 2 corrects that. The response expectations were **not** changed between runs, except T34 and T36, which were made stricter.
