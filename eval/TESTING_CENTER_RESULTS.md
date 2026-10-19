@@ -9,8 +9,10 @@ Date: 2026-10-19. Org: Developer Edition. Agent: Vera, Version 1 (Draft). Mode: 
 | Response check (platform judge) | 34 / 36 | **35 / 36** |
 | Response check (my own review, stricter) | 31 / 36 | **36 / 36** (one platform fail is a judge disagreement, see below) |
 | Subagent check | 9 / 36 * | **34 / 36** |
-| Action check | 28 / 36 * | **35 / 36** |
-| Latency, median / p90 | n/a | **6.1 s / 8.5 s** |
+| Action check | 27 / 36 * | **35 / 36** |
+| Latency, median / p90 | 5.6 s / 7.9 s | **6.1 s / 8.5 s** |
+
+Raw exports from Testing Center, unedited: [Run 1](results/testing_center_run1_2026-10-19.csv) · [Run 2](results/testing_center_run2_2026-10-19.csv). Every count above is recomputed from these files.
 
 \* Run 1 subagent and action numbers mostly measured my expectations, not Vera. Testing Center scores the **first** subagent the router picks (with credentials in the message, that is `member_verification`) and the **required** actions. I had written the final subagent and every possible look-up. Run 2 corrects that. The response expectations were **not** changed between runs, except T34 and T36, which were made stricter.
 
