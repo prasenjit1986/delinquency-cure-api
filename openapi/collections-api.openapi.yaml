@@ -546,6 +546,6 @@ components:
       in: header
       name: X-API-Key
 servers:
-- url: https://YOUR-APP.onrender.com
+- url: https://collections-policy-api.onrender.com
 security:
 - ApiKeyAuth: []

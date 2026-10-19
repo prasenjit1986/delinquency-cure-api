@@ -53,7 +53,7 @@ def downgrade(node):
 def main() -> None:
     spec = app.openapi()
     spec["openapi"] = "3.0.3"
-    spec["servers"] = [{"url": os.getenv("PUBLIC_BASE_URL", "https://YOUR-APP.onrender.com")}]
+    spec["servers"] = [{"url": os.getenv("PUBLIC_BASE_URL", "https://collections-policy-api.onrender.com")}]
 
     paths = {}
     for path, ops in spec["paths"].items():

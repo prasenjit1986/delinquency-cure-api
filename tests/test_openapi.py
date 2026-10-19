@@ -14,6 +14,8 @@ def test_spec_exports_as_valid_openapi_30():
     assert r.returncode == 0, r.stderr
     spec = yaml.safe_load((ROOT / "openapi/collections-api.openapi.yaml").read_text())
     assert spec["openapi"] == "3.0.3"
+    assert spec["servers"][0]["url"] == "https://collections-policy-api.onrender.com", \
+        "spec must point at the deployed API, not a placeholder"
     ops = {op["operationId"] for p in spec["paths"].values() for op in p.values()}
     assert "getAudit" not in ops, "admin routes must not be exposed to the agent"
     assert {"verifyMember", "getEligibleOptions", "createPromiseToPay"} <= ops
