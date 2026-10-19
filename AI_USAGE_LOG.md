@@ -187,6 +187,22 @@ what I accepted, rejected or changed, how I verified it, and where it was wrong.
   1. My first expected subagents and actions were wrong for how Testing Center scores (first subagent, required actions). Corrected for Run 2 and stated openly; response expectations were not loosened.
   2. The platform judge passed 3 replies that break our policy (dispute missed, stop without asking, English-only). A pass rate from an LLM judge alone would have overstated quality.
 
+### 18. Panel materials: deck, architecture, handoff design, published evidence (2026-10-19)
+- **Used for:** drafting the 11-slide panel deck, the full architecture diagram slide, the officer handoff design doc and the architecture page; reviewing my exported PDFs before publishing; adding the raw Testing Center exports to the repo and recounting every number from them.
+- **Output:** `docs/panel/Vera_Panel_Deck.pdf`, `docs/panel/Vera_Handoff_Design.pdf`, `eval/results/testing_center_run1_2026-10-19.csv` and `..._run2_...csv`, a "Panel materials" index in the README.
+- **My judgment:**
+  - Put the detailed architecture diagram inside the deck instead of linking out to a separate page, so it survives screen-share limits and PDF export.
+  - Live demo placed after the "material uncertainty" slide, not first or last.
+  - Rewrote jargon for a business audience ("p90" became "9 in 10 replies under 5 seconds"; "holdout" explained as a random group on today's process).
+  - Added an owner to every open question and tied them to Gate 1. Dropped the open question on the 4% base and kept it as a stated assumption instead.
+  - Published PDFs without speaker notes because the repo is public; removed the account byline from the handoff doc.
+- **Verification:** read every page of each exported PDF before publishing; recomputed every Testing Center count and latency figure from the raw exports with a script rather than from the summary.
+- **Where AI was wrong, incomplete or misleading:**
+  1. The first architecture slide was a simplified 4-box flow that linked out to the full diagram. I pointed out the panel requires the diagram itself; it was rebuilt as a native slide.
+  2. Run 1 action count was stated as 28/36 in the results summary; the raw export shows 27/36. Found only when the export was recounted. Corrected; the Run 2 headline numbers were unaffected.
+  3. The handoff doc said Vera "creates the case, then transfers", contradicting its own statement that the prototype stops at the case. Also titled "one-pager" while running 5 pages. Both fixed (now "Vera handoff design", 4 pages).
+  4. The AI review did its job the other way too: it flagged an unsupported claim I had added to the deck ("most members don't pick up phone calls"), which I removed.
+
 ---
 
 ## Template for new entries
