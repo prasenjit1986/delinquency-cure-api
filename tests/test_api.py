@@ -88,6 +88,14 @@ def test_wrong_details_do_not_say_which_field(client):
                     json={"account_id": DANA[0], "date_of_birth": "1900-01-01",
                           "postal_code": DANA[2]}).json()
     assert r["verified"] is False and r["message"] == "Details did not match."
+    assert r["account_id"] == "", "a failed check must not echo the account back"
+
+
+def test_successful_verification_returns_the_locked_account(client):
+    r = client.post("/v1/verifications", headers=H,
+                    json={"account_id": DANA[0], "date_of_birth": DANA[1],
+                          "postal_code": DANA[2]}).json()
+    assert r["verified"] is True and r["account_id"] == DANA[0]
 
 
 def test_lockout_after_three_failures(client):

@@ -109,6 +109,8 @@ class VerifyRequest(BaseModel):
 
 class VerifyResponse(BaseModel):
     verified: bool
+    account_id: str = Field(default="", description="The verified account. Empty unless verified; "
+                            "the agent locks the conversation to this account.")
     verification_id: str = ""
     expires_at: str = ""
     attempts_remaining: int = 0
@@ -252,7 +254,8 @@ def verify(body: VerifyRequest, caller: str = Depends(require_key)) -> VerifyRes
     v = store.create_verification(acct.account_id)
     store.audit({"caller": caller, "action": "VERIFY", "account_id": acct.account_id,
                  "result": "VERIFIED"})
-    return VerifyResponse(verified=True, verification_id=v.verification_id,
+    return VerifyResponse(verified=True, account_id=acct.account_id,
+                          verification_id=v.verification_id,
                           expires_at=v.expires_at.isoformat(timespec="seconds"),
                           attempts_remaining=config.MAX_VERIFICATION_ATTEMPTS)
 

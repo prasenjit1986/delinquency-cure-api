@@ -699,6 +699,12 @@
             "type": "boolean",
             "title": "Verified"
           },
+          "account_id": {
+            "type": "string",
+            "title": "Account Id",
+            "description": "The verified account. Empty unless verified; the agent locks the conversation to this account.",
+            "default": ""
+          },
           "verification_id": {
             "type": "string",
             "title": "Verification Id",
