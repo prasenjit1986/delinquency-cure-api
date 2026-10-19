@@ -178,6 +178,15 @@ what I accepted, rejected or changed, how I verified it, and where it was wrong.
 
 **Known limitation:** Preview shows the platform line "User requested escalation to human." after the handoff because no live channel is attached. In production Omni-Channel routes the session to the queue and links the transcript (the Apex sets `MessagingSession.CaseId`).
 
+### 17. Agentforce Testing Center (36 single-message tests, live mode)
+- **Used for:** converting the 40-case set to Testing Center format, isolating write tests on clean accounts, computing expectations from the policy engine, running and reading the results.
+- **Output:** `eval/build_testing_center_csv.py`, two suites in the org, `eval/TESTING_CENTER_RESULTS.md`.
+- **My judgment:** used Live mode, not Simulated (simulated invents API results, which defeats policy tests). Read every response instead of trusting the platform judge. Excluded 4 multi-turn or infrastructure cases and pointed each to the API/Apex test that covers it, rather than force them.
+- **Verification:** Run 1 -> 5 real defects (injection date offer, Spanish refusal, dispute missed, what-if amount, stop without asking). Fixed in the script, re-ran on a fresh account pool: 35/36 responses (platform), 34/36 subagent, 35/36 actions, median latency 6.1 s.
+- **Where AI was wrong, incomplete or misleading:**
+  1. My first expected subagents and actions were wrong for how Testing Center scores (first subagent, required actions). Corrected for Run 2 and stated openly; response expectations were not loosened.
+  2. The platform judge passed 3 replies that break our policy (dispute missed, stop without asking, English-only). A pass rate from an LLM judge alone would have overstated quality.
+
 ---
 
 ## Template for new entries

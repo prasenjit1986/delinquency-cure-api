@@ -1,10 +1,10 @@
 row,test_id,account,status
 1,T01,L-50001,in Testing Center
-2,T02,L-50016,in Testing Center
+2,T02,L-50031,in Testing Center
 3,T03,L-50001,in Testing Center
 4,T04,L-50001,in Testing Center
 5,T05,L-50001,in Testing Center
-6,T06,L-50019,in Testing Center
+6,T06,L-50035,in Testing Center
 7,T08,L-50001,in Testing Center
 8,T09,L-50001,in Testing Center
 9,T10,L-50001,in Testing Center
@@ -15,27 +15,21 @@ row,test_id,account,status
 14,T15,L-50003,in Testing Center
 15,T16,L-50004,in Testing Center
 16,T17,L-50005,in Testing Center
-17,T18,L-50025,in Testing Center
+17,T18,L-50038,in Testing Center
 18,T19,L-50001,in Testing Center
 19,T20,L-50001,in Testing Center
 20,T21,L-50001,in Testing Center
-21,T22,L-50021,in Testing Center
-22,T23,L-50022,in Testing Center
-23,T24,L-50024,in Testing Center
-24,T25,L-50011,in Testing Center
+21,T22,L-50042,in Testing Center
+22,T23,L-50045,in Testing Center
+23,T24,L-50052,in Testing Center
+24,T25,L-50054,in Testing Center
 25,T26,L-50006,in Testing Center
-26,T27,L-50014,in Testing Center
-27,T28,L-50013,in Testing Center
-28,T29,L-50010,in Testing Center
+26,T27,L-50055,in Testing Center
+27,T28,L-50056,in Testing Center
+28,T29,L-50059,in Testing Center
 29,T30,L-50007,in Testing Center
 30,T31,L-50001,in Testing Center
 31,T32,L-50001,in Testing Center
 32,T33,L-50001,in Testing Center
-33,T34,L-50018,in Testing Center
+33,T34,L-50060,in Testing Center
 34,T35,L-50001,in Testing Center
-35,T36,L-50001,in Testing Center
-36,T40,L-50001,in Testing Center
-,T07,L-50001,excluded: Needs three turns with wrong details. Covered by API test of the lockout after 3 attempts.
-,T37,L-50001,excluded: Network retry is not a chat message. Covered by API idempotency test.
-,T38,L-50001,excluded: Needs the API to be down. Covered by the Apex test (case still created) and a manual Preview check.
-,T39,L-50001,excluded: Depends on T02 having run first. Covered by API test PTP_ALREADY_ACTIVE.
