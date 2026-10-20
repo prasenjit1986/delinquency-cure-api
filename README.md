@@ -10,7 +10,7 @@ All data is synthetic. Names are invented, emails use `example.com`, phones use 
 
 | What | File |
 |---|---|
-| Panel deck (PDF, 11 slides) | [docs/panel/Vera_Panel_Deck.pdf](docs/panel/Vera_Panel_Deck.pdf) |
+| Panel deck (PDF, 12 slides) | [docs/panel/Vera_Panel_Deck.pdf](docs/panel/Vera_Panel_Deck.pdf) |
 | Officer handoff design (PDF, 4 pages) | [docs/panel/Vera_Handoff_Design.pdf](docs/panel/Vera_Handoff_Design.pdf) |
 | Architecture page (diagram, where each rule is enforced, gaps) | [docs/architecture.html](docs/architecture.html) |
 | Testing Center results (two runs, defects and fixes) | [eval/TESTING_CENTER_RESULTS.md](eval/TESTING_CENTER_RESULTS.md) |
