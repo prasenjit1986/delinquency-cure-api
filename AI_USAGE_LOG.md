@@ -203,6 +203,19 @@ what I accepted, rejected or changed, how I verified it, and where it was wrong.
   3. The handoff doc said Vera "creates the case, then transfers", contradicting its own statement that the prototype stops at the case. Also titled "one-pager" while running 5 pages. Both fixed (now "Vera handoff design", 4 pages).
   4. The AI review did its job the other way too: it flagged an unsupported claim I had added to the deck ("most members don't pick up phone calls"), which I removed.
 
+### 19. Demo coach feedback: handoff wording, demo script, learnings slide (2026-10-20)
+- **Used for:** turning a Salesforce demo coach's four suggestions into changes; editing Vera in the org; testing the handoff in Preview; drafting the prompt-injection and curveball sections of the demo runbook, the learnings slide and the new slide 3 wording.
+- **Output:** Vera Version 2 (draft) in the org, matching `agent/payment_help_agent.agentscript`; demo runbook (prompt-injection layers, 12 curveball answers); deck slide 9 "What building Vera taught me"; slide 3 headline and subtitle.
+- **My judgment:**
+  - Took the coach's point that Vera should not promise a live transfer the prototype doesn't have. After the case is created she now says an advisor will contact the member within one business day. The live-transfer step was removed from the prototype; it stays on the architecture as the production path.
+  - Kept the learnings slide balanced: platform strengths paired with real limits (the AI judge passing policy-breaking replies, scores depending on how the tool scores) so it doesn't read as praise.
+  - Changed "Launch Vera" to "Introduce Vera" so the headline doesn't contradict the pilot plan on the same slide.
+- **Verification:** confirmed the org script matched the repo before and after the edit by hash; tested Ken's handoff twice in Preview and opened both cases (00001033, 00001034); recounted that all 7 of Vera's API calls go through External Services, which the Apex curveball answer depends on.
+- **Where AI was wrong, incomplete or misleading:**
+  1. The runbook's Moment 3 put Ken's verification and his job loss in one message and promised the case would show $357.93. Testing showed a hardship message skips verification, so the case had no amounts (00001033). Rewritten as two messages; the verified run (00001034) showed the facts.
+  2. The first save went to Version 1, which had already been committed, so it silently didn't apply. Caught by re-reading the editor after the save; the change was made in a new Version 2 instead.
+  3. "Keep collection costs in check" stays in the slide 3 headline although Vera's cost per conversation is not known yet (open question 4). Flagged; I kept it and will answer that Gate 2 tests it.
+
 ---
 
 ## Template for new entries
