@@ -353,7 +353,7 @@ subagent stop_and_hardship:
             | Pick one flag: HARDSHIP_REVIEW for financial hardship, job loss, illness or bereavement; BANKRUPTCY; ATTORNEY if they have a lawyer; DISPUTE if they say they do not owe it or already paid; CEASE_CONTACT only if they clearly ask to stop messages. If they are upset or call it harassment but do not ask to stop, acknowledge it calmly and ask whether they want messages about this account to stop; set CEASE_CONTACT only after they say yes.
             | If you do not already know the account number, ask for the account number from the credit union's text message (it starts with L-). Never ask for a card number or any other detail. Then call {!@actions.SetAccountFlag} with that account and the flag. A stop request must be honored even if the member is not verified.
             | For CEASE_CONTACT, confirm they will not get more messages about this account, and stop.
-            | For every other flag: after the flag is set, reply in your own words that payment requests on this account are paused and a person from the team will review their situation, then ask if they would like to be connected now. After they say yes, first call {!@actions.CreateCollectionsHandoff} with the flag as the reason, the account number, a short summary and their words, then call {!@actions.escalate_to_human}. Do not hand off in the same turn as setting the flag. Never read the case number or summary back to the member; just tell them a person will pick up from here and will not need them to repeat their story.
+            | For every other flag: after the flag is set, reply in your own words that payment requests on this account are paused and a person from the team will review their situation, then ask if they would like an advisor to contact them. After they say yes, call {!@actions.CreateCollectionsHandoff} with the flag as the reason, the account number, a short summary and their words. Do not hand off in the same turn as setting the flag. Then tell them, in your own words, that you have logged their request, an advisor from the collections team will contact them within one business day, and they will not need to repeat their story. Do not say they are being transferred or connected now. Never read the case number or summary back to the member.
             | Never argue that the debt is valid. Never give legal advice.
         actions:
             SetAccountFlag: @actions.SetAccountFlag
@@ -367,12 +367,10 @@ subagent stop_and_hardship:
                 with accountId = ...
                 with verificationId = @variables.verificationId
                 with messagingSessionId = @variables.RoutableId
-            escalate_to_human: @utils.escalate
-                description: "Hand the conversation to a person on the hardship team with a short summary."
     actions:
         CreateCollectionsHandoff:
             label: "Create Collections Handoff"
-            description: "Creates a case for a collections officer with the account facts, a summary and the member's own words. Call this right before handing the conversation to a person."
+            description: "Creates a case for a collections officer with the account facts, a summary and the member's own words. Call this once the member agrees to have an advisor contact them."
             target: "apex://CollectionsHandoff"
             inputs:
                 reason: string
@@ -453,8 +451,8 @@ subagent escalation:
     description: "Handles requests from members who want to talk to a person."
     reasoning:
         instructions: ->
-            | If the member asks for a person, first call {!@actions.CreateCollectionsHandoff}. Choose the reason from the whole conversation, not just the last message: if the member mentioned hardship, job loss, illness or a death use HARDSHIP_REVIEW; bankruptcy use BANKRUPTCY; a lawyer use ATTORNEY; a dispute about the debt use DISPUTE; if they want something the policy does not allow use POLICY_EXCEPTION; if they could not be verified use VERIFICATION_FAILED; otherwise MEMBER_REQUEST. For the account, use the account number the member gave in the conversation (it starts with L-), even if they are not verified. For the member's words, copy the member's own message that best explains their situation, not a short yes. Then call {!@actions.escalate_to_human} to complete the handoff.
-              Tell the member a person from the collections team will pick up from here and will not need them to repeat their story. Never read the case number or summary back to the member.
+            | If the member asks for a person, first call {!@actions.CreateCollectionsHandoff}. Choose the reason from the whole conversation, not just the last message: if the member mentioned hardship, job loss, illness or a death use HARDSHIP_REVIEW; bankruptcy use BANKRUPTCY; a lawyer use ATTORNEY; a dispute about the debt use DISPUTE; if they want something the policy does not allow use POLICY_EXCEPTION; if they could not be verified use VERIFICATION_FAILED; otherwise MEMBER_REQUEST. For the account, use the account number the member gave in the conversation (it starts with L-), even if they are not verified. For the member's words, copy the member's own message that best explains their situation, not a short yes.
+              Then tell the member, in your own words, that you have logged their request, an advisor from the collections team will contact them within one business day, and they will not need to repeat their story. Do not say they are being transferred or connected now. Never read the case number or summary back to the member.
               If the handoff fails, apologize and tell them the team will follow up through their usual contact channel.
         actions:
             CreateCollectionsHandoff: @actions.CreateCollectionsHandoff
@@ -464,12 +462,10 @@ subagent escalation:
                 with accountId = ...
                 with verificationId = @variables.verificationId
                 with messagingSessionId = @variables.RoutableId
-            escalate_to_human: @utils.escalate
-                description: "Call this tool if the member wants to talk to a person."
     actions:
         CreateCollectionsHandoff:
             label: "Create Collections Handoff"
-            description: "Creates a case for a collections officer with the account facts, a summary and the member's own words. Call this right before handing the conversation to a person."
+            description: "Creates a case for a collections officer with the account facts, a summary and the member's own words. Call this once the member agrees to have an advisor contact them."
             target: "apex://CollectionsHandoff"
             inputs:
                 reason: string
