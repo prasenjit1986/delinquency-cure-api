@@ -224,7 +224,7 @@ what I accepted, rejected or changed, how I verified it, and where it was wrong.
   - Say "the Vera group and the holdout group", not "test group", to avoid confusion with Testing Center tests.
   - Kept Render for the demo; no host change the night before.
   - The activation writes back to Data 360 only. It does not send any SMS, so "SMS sending: designed, not built" stays true. Left date of birth out of the exported fields.
-- **Verification:** read every page of each exported PDF; checked the Flow answer against the platform rule that callouts must come before saving records; confirmed the segment still shows 24 and Active after publishing. The member list in Data Explorer is still processing at the time of writing.
+- **Verification:** read every page of each exported PDF; checked the Flow answer against the platform rule that callouts must come before saving records; confirmed the segment still shows 24 and Active after publishing. Publish succeeded at 10:08 PM; Data Explorer (Activation Audience Latest - Data 360 Audience) shows 24 unique members, all with SMS consent true. Recomputed from the files: 26 late members have a "yes" on some profile; the 2 whose stale profile says "no" (the known consent conflict) are excluded, giving the same 24 names.
 - **Where AI was wrong, incomplete or misleading:**
   1. My first "why not Render" answer dismissed Heroku as "no free plan". That is weak in front of Salesforce, which owns Heroku. Replaced with: the API goes away in production; if custom logic must be hosted, Heroku with AppLink is the natural choice.
   2. The runbook said to share the whole screen. With one screen, that would show my speaker notes to the panel. Corrected: share a window, or use a second screen for notes.
