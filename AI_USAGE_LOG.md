@@ -216,6 +216,20 @@ what I accepted, rejected or changed, how I verified it, and where it was wrong.
   2. The first save went to Version 1, which had already been committed, so it silently didn't apply. Caught by re-reading the editor after the save; the change was made in a new Version 2 instead.
   3. "Keep collection costs in check" stays in the slide 3 headline although Vera's cost per conversation is not known yet (open question 4). Flagged; I kept it and will answer that Gate 2 tests it.
 
+### 20. Final prep: build walkthrough, opening, Q&A answers, segment member list (2026-10-20 to 10-22)
+- **Used for:** a step-by-step "How Vera Was Built" document so I can defend each decision; the opening script and speaker notes; answers for likely questions (Flow instead of Apex, alternatives to Render, control vs holdout groups); screen-sharing setup for Google Meet; making the 24 segment members visible in Data 360.
+- **Output:** "How Vera Was Built" (15 pages, two diagrams); speaker notes on slides 1, 3, 6, 7 and 12; runbook additions (Flow answer); a Data Cloud activation target "Data 360 Audience" and an activation "Early Delinquency SMS Outreach Audience" (Unified Individual ID, first and last name, SMS consent), and the segment published.
+- **My judgment:**
+  - Opening built around one member, Dana, who reappears in the demo, and the one rule: the AI talks, the collections system decides. A one-sentence thank-you, not a long one.
+  - Say "the Vera group and the holdout group", not "test group", to avoid confusion with Testing Center tests.
+  - Kept Render for the demo; no host change the night before.
+  - The activation writes back to Data 360 only. It does not send any SMS, so "SMS sending: designed, not built" stays true. Left date of birth out of the exported fields.
+- **Verification:** read every page of each exported PDF; checked the Flow answer against the platform rule that callouts must come before saving records; confirmed the segment still shows 24 and Active after publishing. The member list in Data Explorer is still processing at the time of writing.
+- **Where AI was wrong, incomplete or misleading:**
+  1. My first "why not Render" answer dismissed Heroku as "no free plan". That is weak in front of Salesforce, which owns Heroku. Replaced with: the API goes away in production; if custom logic must be hosted, Heroku with AppLink is the natural choice.
+  2. The runbook said to share the whole screen. With one screen, that would show my speaker notes to the panel. Corrected: share a window, or use a second screen for notes.
+  3. The opening's detail that Dana's paycheck landed late is illustrative, not from the data. Flagged; framed as "picture a member".
+
 ---
 
 ## Template for new entries
